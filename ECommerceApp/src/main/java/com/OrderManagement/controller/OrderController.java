@@ -36,4 +36,10 @@ public class OrderController {
 		return new ResponseEntity<List<Orders>>(list, HttpStatus.OK);
 
 	}
+	@PostMapping("/allcart/{sessionid}")
+	public ResponseEntity<List<Orders>> placeCartOrderAll(@PathVariable("sessionid") String sessionId,
+			@RequestBody CardFormat cardFormat) throws ProductException, LoginException, UserException{
+		List<Orders> list = orderService.placeAllCartOrder(sessionId, cardFormat);
+		return new ResponseEntity<List<Orders>>(list, HttpStatus.OK);
+	}
 }

@@ -52,13 +52,13 @@ public class OrderServImpl implements OrderService {
 
 	@Autowired
 	private OrderDao orderDao;
-	
+
 	@Autowired
 	private CardCredentialDao cardCredentialDao;
 
 	@Autowired
 	private PaymentDao paymentDao;
-	
+
 	@Autowired
 	private PaymentSourceDao paymentSourceDao;
 
@@ -100,17 +100,16 @@ public class OrderServImpl implements OrderService {
 		}
 		// source payment
 		PaymentSource paymentSource = paymentSourceDao.findByAccountInfo(cardFormat.getCardNo().toString());
-		if(paymentSource==null) {
+		if (paymentSource == null) {
 			paymentSource = new PaymentSource();
 			paymentSource.setAccountInfo(cardFormat.getCardNo().toString());
+			paymentSource = paymentSourceDao.save(paymentSource);
 		}
-		
-		
-		
+
 		long orderTotal = 0;
 
 		List<Orders> ordersList = new ArrayList<>();
-		
+
 		for (Integer id : cartIds) {
 			Optional<CartDetails> cartOptional = cartDetailsDao.findById(id);
 			if (cartOptional.isEmpty()) {
@@ -126,46 +125,151 @@ public class OrderServImpl implements OrderService {
 			// value assigned
 			newOrderDetails.setQuantity(quantuty);
 			newOrderDetails.setProducts(products);
-			products.getOrders().add(newOrderDetails); //## reverse
+			products.getOrders().add(newOrderDetails); // ## reverse
 			products.getCarts().remove(cartDetails); // cart details removed
 
 			newOrders.setOrderDate(LocalDate.now());
 			newOrders.setTotal_order_amount(quantuty * products.getSale_Price());
 			newOrders.setPrepaid(true);
-			
+
 			newOrders.setPayments(payment);
-			payment.getOrders().add(newOrders); //## reverse
-			
+			payment.getOrders().add(newOrders); // ## reverse
+
 			newOrders.setCustomer(userCurrent);
 			userCurrent.getOrders().add(newOrders); // ## reverse
-			
+
 			newOrders.setOrderDetails(newOrderDetails);
 			newOrderDetails.setOrders(newOrders); // order added to order details
-			
+
 			newOrders.setSource(paymentSource);
-			paymentSource.getOrders().add(newOrders); //## reverse
-			
+			paymentSource.getOrders().add(newOrders); // ## reverse
+
 			ordersList.add(newOrders);
-			orderDao.save(newOrders);
-			
+//			orderDao.save(newOrders);
+
 			orderTotal += quantuty * products.getSale_Price();
-			
+
 		}
-		if(orderTotal>cardCredential.getBalance()) {
+		if (orderTotal > cardCredential.getBalance()) {
 			throw new ProductException("Insufficient balance");
 		}
 		cardCredential.setBalance(cardCredential.getBalance() - orderTotal);
 		cardCredentialDao.save(cardCredential);
-//		for(Orders o:ordersList) {
-//			orderDao.save(o);
-//		}
+
+		for (Orders o : ordersList) {
+			orderDao.save(o);
+		}
+
+		for (Integer id : cartIds) {
+			Optional<CartDetails> cartOptional = cartDetailsDao.findById(id);
+			CartDetails cartDetails = cartOptional.get();
+			userCurrent.getCart().getCartDetails().remove(cartDetails);
+			cartDetailsDao.delete(cartDetails);
+		}
+//		udao.save(userCurrent);
 		return ordersList;
 	}
 
 	@Override
-	public List<Orders> placeAllCartOrder(String sessionId) throws ProductException, LoginException, UserException {
+	public List<Orders> placeAllCartOrder(String sessionId, CardFormat cardFormat)
+			throws ProductException, LoginException, UserException {
 
-		return null;
+		// user valid!
+		CurrentSession cur = sessionDao.findByUuid(sessionId);
+		if (cur == null) {
+			throw new LoginException("Please log in to post");
+		}
+		Optional<User> user = udao.findById(cur.getUserId());
+		if (user.isEmpty()) {
+			throw new LoginException("Please login with your account");
+		}
+		User userCurrent = user.get();
+
+		// check if these cart belong to this user
+		Optional<Usercart> userCartOptional = cartDao.findById(userCurrent.getCart().getId());
+		if (userCartOptional.isEmpty()) {
+			throw new UserException("Cart id invalid");
+		}
+
+		Usercart usercart = userCartOptional.get();
+		if (userCurrent.getCart().getId() != usercart.getId()) {
+			throw new UserException("This cart doesn't belongs to this id");
+		}
+
+		// card vaild!
+		CardCredential cardCredential = cardCredentialDao.matchCard(cardFormat.getCardNo(), cardFormat.getPin());
+		if (cardCredential == null) {
+			throw new ProductException("Invalid card");
+		}
+
+		// payment method
+		Payment payment = paymentDao.findByMethodName("card");
+		if (payment == null || !payment.isActive()) {
+			throw new ProductException("Payment method not supported now");
+		}
+		// source payment
+		PaymentSource paymentSource = paymentSourceDao.findByAccountInfo(cardFormat.getCardNo().toString());
+		if (paymentSource == null) {
+			paymentSource = new PaymentSource();
+			paymentSource.setAccountInfo(cardFormat.getCardNo().toString());
+			paymentSource = paymentSourceDao.save(paymentSource);
+		}
+
+		long orderTotal = 0;
+
+		List<Orders> ordersList = new ArrayList<>();
+		List<CartDetails> cartDetailsList = cartDetailsDao.findAll();
+		for (CartDetails cartDetails : cartDetailsList) {
+			// format created for new order
+			Orders newOrders = new Orders();
+			OrderDetails newOrderDetails = new OrderDetails();
+			Products products = cartDetails.getProductCart();
+			int quantuty = cartDetails.getQuantity();
+
+			// value assigned
+			newOrderDetails.setQuantity(quantuty);
+			newOrderDetails.setProducts(products);
+			products.getOrders().add(newOrderDetails); // ## reverse
+			products.getCarts().remove(cartDetails); // cart details removed
+
+			newOrders.setOrderDate(LocalDate.now());
+			newOrders.setTotal_order_amount(quantuty * products.getSale_Price());
+			newOrders.setPrepaid(true);
+
+			newOrders.setPayments(payment);
+			payment.getOrders().add(newOrders); // ## reverse
+
+			newOrders.setCustomer(userCurrent);
+			userCurrent.getOrders().add(newOrders); // ## reverse
+
+			newOrders.setOrderDetails(newOrderDetails);
+			newOrderDetails.setOrders(newOrders); // order added to order details
+
+			newOrders.setSource(paymentSource);
+			paymentSource.getOrders().add(newOrders); // ## reverse
+
+			ordersList.add(newOrders);
+//					orderDao.save(newOrders);
+
+			orderTotal += quantuty * products.getSale_Price();
+
+		}
+		if (orderTotal > cardCredential.getBalance()) {
+			throw new ProductException("Insufficient balance");
+		}
+		cardCredential.setBalance(cardCredential.getBalance() - orderTotal);
+		cardCredentialDao.save(cardCredential);
+
+		for (Orders o : ordersList) {
+			orderDao.save(o);
+		}
+
+		for (CartDetails cartDetails : cartDetailsList) {
+			userCurrent.getCart().getCartDetails().remove(cartDetails);
+			cartDetailsDao.delete(cartDetails);
+		}
+//				udao.save(userCurrent);
+		return ordersList;
 	}
 
 }

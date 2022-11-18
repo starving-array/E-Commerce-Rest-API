@@ -14,7 +14,7 @@ public interface OrderService {
 	public List<Orders> placeCartOrderPertial(List<Integer> cartIds, String sessionId, CardFormat cardFormat, Integer usercartId)
 			throws ProductException, LoginException, UserException;
 
-	public List<Orders> placeAllCartOrder(String sessionId) throws ProductException, LoginException, UserException;
+	public List<Orders> placeAllCartOrder(String sessionId, CardFormat cardFormat) throws ProductException, LoginException, UserException;
 	
 	
 

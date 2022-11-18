@@ -1,5 +1,6 @@
 package com.OrderManagement.service;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -67,7 +68,7 @@ public class AddToCartImpl implements AddCartService {
 		cartDetails.setProductCart(products);
 		cartDetails.setQuantity(quantity);
 		cartDetails.setUsercart(usercart);
-
+		cartDetails.setProductAddDate(LocalDate.now());
 		usercart.getCartDetails().add(cartDetails);
 		cartDao.save(usercart);
 		udao.save(userCurrent);
@@ -123,6 +124,7 @@ public class AddToCartImpl implements AddCartService {
 		// or not
 		CartDetails existCartDetails = cartOptional.get();
 		existCartDetails.setQuantity(cartDetails.getQuantity());
+		existCartDetails.setModifyDate(LocalDate.now());
 		return cartDetailsDao.save(existCartDetails);
 	}
 
