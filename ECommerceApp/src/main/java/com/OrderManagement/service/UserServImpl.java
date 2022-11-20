@@ -103,19 +103,19 @@ public class UserServImpl implements UserService {
 		// modification date
 		existUser.setDateModified(LocalDate.now());
 
-		if (user.getCity() != null) {
-			existUser.setCity(user.getCity());
-		}
-		if (user.getState() != null) {
-			existUser.setState(user.getState());
-		}
-		if (user.getCountry() != null) {
-			existUser.setCountry(user.getCountry());
-		}
-		if (user.getPostalCode() != null) {
-			existUser.setPostalCode(user.getPostalCode());
-		}
-		
+//		if (user.getCity() != null) {
+//			existUser.setCity(user.getCity());
+//		}
+//		if (user.getState() != null) {
+//			existUser.setState(user.getState());
+//		}
+//		if (user.getCountry() != null) {
+//			existUser.setCountry(user.getCountry());
+//		}
+//		if (user.getPostalCode() != null) {
+//			existUser.setPostalCode(user.getPostalCode());
+//		}
+//		
 
 		return udao.save(existUser);
 	}

@@ -1,6 +1,7 @@
 package com.OrderManagement.module;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -11,6 +12,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 
+import com.OrderManagement.module.address.Addresses;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.AllArgsConstructor;
@@ -49,5 +51,11 @@ public class Orders {
 	@ManyToOne
 	@JoinColumn(name = "source", referencedColumnName = "id")
 	private PaymentSource source;
+	
+	@OneToOne
+	private Addresses billingAddress;
+	
+	@OneToOne
+	private Addresses shippingAddress;
 	
 }

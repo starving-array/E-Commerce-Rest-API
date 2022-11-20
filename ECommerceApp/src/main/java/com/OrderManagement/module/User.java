@@ -12,6 +12,7 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 
+import com.OrderManagement.module.address.Addresses;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.AllArgsConstructor;
@@ -43,12 +44,15 @@ public class User {
 	@JsonIgnore
 	private LocalDate dateModified;
 	
-	private String city;
-	private String state;
-	private String country;
+//	private String city;
+//	private String state;
+//	private String country;
+//
+//	private Integer postalCode;
 
-	private Integer postalCode;
-
+	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+	private List<Addresses> orderAddresses = new ArrayList<>();
+	
 	@JsonIgnore
 	@OneToMany(mappedBy = "customer", cascade = CascadeType.ALL)
 	private List<Orders> orders = new ArrayList<>();

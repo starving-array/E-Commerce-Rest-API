@@ -61,6 +61,17 @@ public class GlobalException {
 
 	}
 
+	@ExceptionHandler(OrderException.class)
+	public ResponseEntity<ErrorFormatDetails> orderHand(OrderException se, WebRequest req) {
+
+		ErrorFormatDetails err = new ErrorFormatDetails();
+		err.setTimestamp(LocalDateTime.now());
+		err.setMessage(se.getMessage());
+		err.setDetails(req.getDescription(false));
+
+		return new ResponseEntity<ErrorFormatDetails>(err, HttpStatus.NOT_FOUND);
+
+	}
 	@ExceptionHandler(MethodArgumentNotValidException.class)
 	public ResponseEntity<ErrorFormatDetails> rollback(MethodArgumentNotValidException se) {
 

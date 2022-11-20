@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import com.OrderManagement.Admin.CardCredential;
 import com.OrderManagement.Admin.CardCredentialDao;
 import com.OrderManagement.exceptions.LoginException;
+import com.OrderManagement.exceptions.OrderException;
 import com.OrderManagement.exceptions.ProductException;
 import com.OrderManagement.exceptions.UserException;
 import com.OrderManagement.module.CartDetails;
@@ -192,9 +193,6 @@ public class OrderServImpl implements OrderService {
 		}
 
 		Usercart usercart = userCartOptional.get();
-		if (userCurrent.getCart().getId() != usercart.getId()) {
-			throw new UserException("This cart doesn't belongs to this id");
-		}
 
 		// card vaild!
 		CardCredential cardCredential = cardCredentialDao.matchCard(cardFormat.getCardNo(), cardFormat.getPin());
@@ -270,6 +268,121 @@ public class OrderServImpl implements OrderService {
 		}
 //				udao.save(userCurrent);
 		return ordersList;
+	}
+
+	@Override
+	public Orders placeOrderById(String sessionId, CardFormat cardFormat, Integer productId, Integer quantity)
+			throws UserException, LoginException, ProductException {
+		// user valid!
+		CurrentSession cur = sessionDao.findByUuid(sessionId);
+		if (cur == null) {
+			throw new LoginException("Please log in to post");
+		}
+		Optional<User> user = udao.findById(cur.getUserId());
+		if (user.isEmpty()) {
+			throw new LoginException("Please login with your account");
+		}
+		User userCurrent = user.get();
+
+		// card vaild!
+		CardCredential cardCredential = cardCredentialDao.matchCard(cardFormat.getCardNo(), cardFormat.getPin());
+		if (cardCredential == null) {
+			throw new ProductException("Invalid card");
+		}
+
+		// payment method
+		Payment payment = paymentDao.findByMethodName("card");
+		if (payment == null || !payment.isActive()) {
+			throw new ProductException("Payment method not supported now");
+		}
+
+		// Product verification
+		Optional<Products> productsOptional = pdao.findById(productId);
+		if (productsOptional.isEmpty()) {
+			throw new ProductException("Product doesn't exist");
+		}
+		Products products = productsOptional.get();
+
+		// sufficient / insufficient balance?
+		double orderTotal = products.getSale_Price() * quantity;
+		if (cardCredential.getBalance() < quantity * products.getSale_Price()) {
+			throw new ProductException("Insufficient balance");
+		}
+		// balance updating for the payment method
+		cardCredential.setBalance(cardCredential.getBalance() - orderTotal);
+		cardCredentialDao.save(cardCredential);
+
+		// source payment
+		PaymentSource paymentSource = paymentSourceDao.findByAccountInfo(cardFormat.getCardNo().toString());
+		if (paymentSource == null) {
+			paymentSource = new PaymentSource();
+			paymentSource.setAccountInfo(cardFormat.getCardNo().toString());
+			paymentSource = paymentSourceDao.save(paymentSource);
+		}
+
+		// Order entry ================================================
+		// ============================================================
+		Orders newOrders = new Orders(); // new order entry file
+		OrderDetails newOrderDetails = new OrderDetails(); // new order details entry file
+
+		// value assigned
+		newOrderDetails.setQuantity(quantity);
+		newOrderDetails.setProducts(products);
+		products.getOrders().add(newOrderDetails); // ## reverse
+
+		newOrders.setOrderDate(LocalDate.now());
+		newOrders.setTotal_order_amount(quantity * products.getSale_Price());
+		newOrders.setPrepaid(true);
+
+		newOrders.setPayments(payment);
+		payment.getOrders().add(newOrders); // ## reverse
+
+		newOrders.setCustomer(userCurrent);
+		userCurrent.getOrders().add(newOrders); // ## reverse
+
+		newOrders.setOrderDetails(newOrderDetails);
+		newOrderDetails.setOrders(newOrders); // order added to order details
+
+		newOrders.setSource(paymentSource);
+		paymentSource.getOrders().add(newOrders); // ## reverse
+
+		newOrders = orderDao.save(newOrders);
+		return newOrders;
+	}
+
+	@Override
+	public Orders viewOrderById(String sessionId, Integer orderId)
+			throws UserException, LoginException, OrderException {
+		CurrentSession cur = sessionDao.findByUuid(sessionId);
+		if (cur == null) {
+			throw new LoginException("Please log in to post");
+		}
+		Optional<User> user = udao.findById(cur.getUserId());
+		if (user.isEmpty()) {
+			throw new LoginException("Please login with your account");
+		}
+		User userCurrent = user.get();
+
+		Orders orders = orderDao.findOrderById(userCurrent.getUserId(), orderId);
+		if (orders == null) {
+			throw new OrderException("Order not exists with id " + orderId);
+		}
+		return orders;
+	}
+
+	@Override
+	public List<Orders> viewAllOrder(String sessionId) throws UserException, LoginException, OrderException {
+		CurrentSession cur = sessionDao.findByUuid(sessionId);
+		if (cur == null) {
+			throw new LoginException("Please log in to post");
+		}
+		Optional<User> user = udao.findById(cur.getUserId());
+		if (user.isEmpty()) {
+			throw new LoginException("Please login with your account");
+		}
+		User userCurrent = user.get();
+		List<Orders> listOfOrders = orderDao.findTop5ByOrderByOrderIdDesc(); //userCurrent.getOrders();
+		return listOfOrders;
 	}
 
 }
