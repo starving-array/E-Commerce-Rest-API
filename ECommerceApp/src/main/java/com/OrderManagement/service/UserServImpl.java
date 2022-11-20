@@ -1,6 +1,6 @@
 package com.OrderManagement.service;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -37,7 +37,7 @@ public class UserServImpl implements UserService {
 		}
 
 		// dateEntry to set
-		LocalDate nowDate = LocalDate.now();
+		LocalDateTime nowDate = LocalDateTime.now();
 		user.setRegistrationDate(nowDate);
 
 		/// create a cart for new user
@@ -101,7 +101,7 @@ public class UserServImpl implements UserService {
 			existUser.setDate_of_birth(user.getDate_of_birth());
 		}
 		// modification date
-		existUser.setDateModified(LocalDate.now());
+		existUser.setDateModified(LocalDateTime.now());
 
 //		if (user.getCity() != null) {
 //			existUser.setCity(user.getCity());

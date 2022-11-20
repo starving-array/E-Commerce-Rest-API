@@ -1,6 +1,7 @@
 package com.OrderManagement.module;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,6 +26,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class User {
 
+	@JsonIgnore
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Integer userId;
@@ -37,12 +39,12 @@ public class User {
 	private String email;
 	private String password;
 
-	private LocalDate date_of_birth;
+	private LocalDateTime date_of_birth;
 	
 	@JsonIgnore
-	private LocalDate registrationDate;
+	private LocalDateTime registrationDate;
 	@JsonIgnore
-	private LocalDate dateModified;
+	private LocalDateTime dateModified;
 	
 //	private String city;
 //	private String state;

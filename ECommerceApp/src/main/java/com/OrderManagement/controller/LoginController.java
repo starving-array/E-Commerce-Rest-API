@@ -54,5 +54,17 @@ public class LoginController {
 		return userLogin.getUser(key, userId);
 
 	}
+	
+	@CrossOrigin
+	@PostMapping("/admin")
+	public ResponseEntity<String> adminLogin(@Valid @RequestBody LoginDTO dto) throws LoginException {
+
+		String result = userLogin.loginAdmin(dto);
+
+		return new ResponseEntity<String>(result, HttpStatus.OK);
+
+	}
+	
+	
 
 }

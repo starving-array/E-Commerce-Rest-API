@@ -1,6 +1,6 @@
 package com.OrderManagement.service;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -14,7 +14,6 @@ import com.OrderManagement.exceptions.ProductException;
 import com.OrderManagement.exceptions.UserException;
 import com.OrderManagement.module.CartDetails;
 import com.OrderManagement.module.CurrentSession;
-import com.OrderManagement.module.Orders;
 import com.OrderManagement.module.Products;
 import com.OrderManagement.module.User;
 import com.OrderManagement.module.Usercart;
@@ -68,7 +67,7 @@ public class AddToCartImpl implements AddCartService {
 		cartDetails.setProductCart(products);
 		cartDetails.setQuantity(quantity);
 		cartDetails.setUsercart(usercart);
-		cartDetails.setProductAddDate(LocalDate.now());
+		cartDetails.setProductAddDate(LocalDateTime.now());
 		usercart.getCartDetails().add(cartDetails);
 		cartDao.save(usercart);
 		udao.save(userCurrent);
@@ -124,7 +123,7 @@ public class AddToCartImpl implements AddCartService {
 		// or not
 		CartDetails existCartDetails = cartOptional.get();
 		existCartDetails.setQuantity(cartDetails.getQuantity());
-		existCartDetails.setModifyDate(LocalDate.now());
+		existCartDetails.setModifyDate(LocalDateTime.now());
 		return cartDetailsDao.save(existCartDetails);
 	}
 

@@ -23,6 +23,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Products {
+	@JsonIgnore 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Integer productId;

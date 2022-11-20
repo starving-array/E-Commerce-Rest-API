@@ -46,7 +46,6 @@ public class ErrorFormatDetails {
 		return details;
 	}
 
-
 	public void setDetails(String details) {
 		this.details = details;
 	}

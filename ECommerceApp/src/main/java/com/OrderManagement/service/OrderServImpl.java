@@ -1,6 +1,6 @@
 package com.OrderManagement.service;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -129,7 +129,7 @@ public class OrderServImpl implements OrderService {
 			products.getOrders().add(newOrderDetails); // ## reverse
 			products.getCarts().remove(cartDetails); // cart details removed
 
-			newOrders.setOrderDate(LocalDate.now());
+			newOrders.setOrderDate(LocalDateTime.now());
 			newOrders.setTotal_order_amount(quantuty * products.getSale_Price());
 			newOrders.setPrepaid(true);
 
@@ -230,7 +230,7 @@ public class OrderServImpl implements OrderService {
 			products.getOrders().add(newOrderDetails); // ## reverse
 			products.getCarts().remove(cartDetails); // cart details removed
 
-			newOrders.setOrderDate(LocalDate.now());
+			newOrders.setOrderDate(LocalDateTime.now());
 			newOrders.setTotal_order_amount(quantuty * products.getSale_Price());
 			newOrders.setPrepaid(true);
 
@@ -330,7 +330,7 @@ public class OrderServImpl implements OrderService {
 		newOrderDetails.setProducts(products);
 		products.getOrders().add(newOrderDetails); // ## reverse
 
-		newOrders.setOrderDate(LocalDate.now());
+		newOrders.setOrderDate(LocalDateTime.now());
 		newOrders.setTotal_order_amount(quantity * products.getSale_Price());
 		newOrders.setPrepaid(true);
 

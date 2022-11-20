@@ -1,7 +1,6 @@
 package com.OrderManagement.module;
 
-import java.time.LocalDate;
-import java.util.List;
+import java.time.LocalDateTime;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -24,11 +23,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Orders {
+	@JsonIgnore
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Integer orderId;
 		
-	private LocalDate OrderDate;
+	private LocalDateTime OrderDate;
 	private Double total_order_amount;
 	
 	private Boolean prepaid;

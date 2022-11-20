@@ -1,6 +1,6 @@
 package com.OrderManagement.module;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -25,11 +25,11 @@ public class CartDetails {
 	private Integer quantity;
 
 	@JsonIgnore
-	private LocalDate productAddDate;
+	private LocalDateTime productAddDate;
 	
 	
 	@JsonIgnore
-	private LocalDate modifyDate;
+	private LocalDateTime modifyDate;
 	
 	@JsonIgnore
 	@ManyToOne
