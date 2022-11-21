@@ -29,32 +29,42 @@ public class FeedbackController {
 	private FeedbackService feedbackService;
 
 	@CrossOrigin
-	@PostMapping("/new/{sessionid}/{productid}")
+	@PostMapping("/new/{sessionid}/{productid}/{userid}")
 	public ResponseEntity<Feedback> addFeedBack(@PathVariable("sessionid") String sessionId,
-			@PathVariable("productid") Integer productId, @RequestBody Feedback feedback)
-			throws LoginException, UserException, ProductException {
-		Feedback feedback2 = feedbackService.addFeedback(sessionId, productId, feedback);
+			@PathVariable("userid") Integer userid, @PathVariable("productid") Integer productId,
+			@RequestBody Feedback feedback) throws LoginException, UserException, ProductException {
+		Feedback feedback2 = feedbackService.addFeedback(sessionId, userid, productId, feedback);
 		return new ResponseEntity<Feedback>(feedback2, HttpStatus.CREATED);
 	}
 
-	@PatchMapping("/edit/{sessionid}")
+	@PatchMapping("/edit/{sessionid}/{userid}")
 	public ResponseEntity<Feedback> modifyFeedback(@PathVariable("sessionid") String sessionId,
-			@RequestBody Feedback feedback) throws LoginException, UserException, ProductException {
-		Feedback feedback2 = feedbackService.modifyFeedback(sessionId, feedback);
+			@PathVariable("userid") Integer userid, @RequestBody Feedback feedback)
+			throws LoginException, UserException, ProductException {
+		Feedback feedback2 = feedbackService.modifyFeedback(sessionId, userid, feedback);
 		return new ResponseEntity<Feedback>(feedback2, HttpStatus.OK);
 	}
 
-	@DeleteMapping("/del/{sessionid}/{feedid}")
+	@DeleteMapping("/del/{sessionid}/{feedid}/{userid}")
 	public ResponseEntity<Feedback> addFeedBack(@PathVariable("sessionid") String sessionId,
-			@PathVariable("feedid") Integer feedbackId) throws LoginException, UserException {
-		Feedback feedback2 = feedbackService.deleteFeedback(sessionId, feedbackId);
+			@PathVariable("userid") Integer userid, @PathVariable("feedid") Integer feedbackId)
+			throws LoginException, UserException {
+		Feedback feedback2 = feedbackService.deleteFeedback(sessionId, userid, feedbackId);
 		return new ResponseEntity<Feedback>(feedback2, HttpStatus.OK);
 	}
 
-	@GetMapping("/view/{sessionid}/{productid}")
+	@GetMapping("/view/{sessionid}/{productid}/{userid}")
 	public ResponseEntity<List<Feedback>> viewMyFeedBack(@PathVariable("sessionid") String sessionId,
-			@PathVariable("productid") Integer productId) throws LoginException, UserException, ProductException {
-		List<Feedback> list = feedbackService.viewMyFeedback(sessionId, productId);
+			@PathVariable("userid") Integer userid, @PathVariable("productid") Integer productId)
+			throws LoginException, UserException, ProductException {
+		List<Feedback> list = feedbackService.viewMyFeedback(sessionId, userid, productId);
+		return new ResponseEntity<List<Feedback>>(list, HttpStatus.OK);
+	}
+
+	@GetMapping("/viewall/{productid}")
+	public ResponseEntity<List<Feedback>> viewAllFeedBack(@PathVariable("productid") Integer productId)
+			throws ProductException {
+		List<Feedback> list = feedbackService.viewAllFeedback(productId);
 		return new ResponseEntity<List<Feedback>>(list, HttpStatus.OK);
 	}
 

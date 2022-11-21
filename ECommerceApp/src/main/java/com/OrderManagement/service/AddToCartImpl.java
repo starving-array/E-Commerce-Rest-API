@@ -42,16 +42,18 @@ public class AddToCartImpl implements AddCartService {
 	private CartDetailsDao cartDetailsDao;
 
 	@Override
-	public Products addToCartProducts(Integer productId, String sessionId, Integer quantity)
+	public Products addToCartProducts(Integer productId, String sessionId, Integer userid,Integer quantity)
 			throws UserException, ProductException, LoginException {
 		CurrentSession cur = sessionDao.findByUuid(sessionId);
 		if (cur == null) {
 			throw new LoginException("Please log in to post");
 		}
-		Optional<User> user = udao.findById(cur.getUserId());
-		if (user.isEmpty()) {
+		
+		if (cur.getUserId() != userid) {
 			throw new LoginException("Please login with your account");
 		}
+
+		Optional<User> user = udao.findById(userid);
 		User userCurrent = user.get();
 
 		Optional<Products> postopt = pdao.findById(productId);
@@ -71,20 +73,24 @@ public class AddToCartImpl implements AddCartService {
 		usercart.getCartDetails().add(cartDetails);
 		cartDao.save(usercart);
 		udao.save(userCurrent);
+		
 		return null;
 	}
 
 	@Override
-	public List<CartDto> viewCart(String sessionId) throws ProductException, LoginException, UserException {
+	public List<CartDto> viewCart(String sessionId,Integer userid) throws ProductException, LoginException, UserException {
 		CurrentSession cur = sessionDao.findByUuid(sessionId);
 		if (cur == null) {
 			throw new LoginException("Please log in to post");
 		}
-		Optional<User> user = udao.findById(cur.getUserId());
-		if (user.isEmpty()) {
+		//
+		if (cur.getUserId() != userid) {
 			throw new LoginException("Please login with your account");
 		}
+
+		Optional<User> user = udao.findById(userid);
 		User userCurrent = user.get();
+
 		List<CartDetails> listCartDetails = userCurrent.getCart().getCartDetails();// userCurrent.get
 		List<CartDto> dtoList = new ArrayList<>();
 		for (CartDetails i : listCartDetails) {
@@ -102,17 +108,20 @@ public class AddToCartImpl implements AddCartService {
 	}
 
 	@Override
-	public CartDetails modifyCart(CartDetails cartDetails, String sessionId)
+	public CartDetails modifyCart(CartDetails cartDetails, String sessionId, Integer userid)
 			throws ProductException, LoginException, UserException {
 		CurrentSession cur = sessionDao.findByUuid(sessionId);
 		if (cur == null) {
 			throw new LoginException("Please log in to post");
 		}
-		Optional<User> user = udao.findById(cur.getUserId());
-		if (user.isEmpty()) {
+		//
+		if (cur.getUserId() != userid) {
 			throw new LoginException("Please login with your account");
 		}
+
+		Optional<User> user = udao.findById(userid);
 		User userCurrent = user.get();
+
 
 		Optional<CartDetails> cartOptional = cartDetailsDao.findById(cartDetails.getCartDetailId());
 		if (cartOptional.isEmpty()) {
@@ -128,17 +137,20 @@ public class AddToCartImpl implements AddCartService {
 	}
 
 	@Override
-	public CartDetails deleteFromCart(Integer cartId, String sessionId)
+	public CartDetails deleteFromCart(Integer cartId, String sessionId,Integer userid)
 			throws ProductException, LoginException, UserException {
 		CurrentSession cur = sessionDao.findByUuid(sessionId);
 		if (cur == null) {
 			throw new LoginException("Please log in to post");
 		}
-		Optional<User> user = udao.findById(cur.getUserId());
-		if (user.isEmpty()) {
+		//
+		if (cur.getUserId() != userid) {
 			throw new LoginException("Please login with your account");
 		}
+
+		Optional<User> user = udao.findById(userid);
 		User userCurrent = user.get();
+
 
 		Optional<CartDetails> cartOptional = cartDetailsDao.findById(cartId);
 		if (cartOptional.isEmpty()) {

@@ -39,7 +39,7 @@ public class User {
 	private String email;
 	private String password;
 
-	private LocalDateTime date_of_birth;
+	private LocalDate date_of_birth;
 	
 	@JsonIgnore
 	private LocalDateTime registrationDate;
@@ -52,6 +52,7 @@ public class User {
 //
 //	private Integer postalCode;
 
+	@JsonIgnore
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
 	private List<Addresses> orderAddresses = new ArrayList<>();
 	

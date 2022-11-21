@@ -13,4 +13,11 @@ public interface OrderDao extends JpaRepository<Orders, Integer> {
 	public Orders findOrderById(Integer userID, Integer orderId);
 
 	public List<Orders> findTop5ByOrderByOrderIdDesc();
+	
+	
+	@Query(" select o from Orders o where source=(select c.id from PaymentSource c where accountInfo=?1)")
+	public List<Orders> getOrderByPaymentSource(String cardInfo);
+	
+	
+	
 }

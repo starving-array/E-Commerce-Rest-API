@@ -10,6 +10,7 @@ import javax.persistence.OneToOne;
 
 import com.OrderManagement.module.Orders;
 import com.OrderManagement.module.User;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -31,15 +32,17 @@ public class Addresses {
 	private String country;
 	private String landmark;
 	
-	
+	@JsonIgnore
 	@ManyToOne
 	@JoinColumn(name = "PIN", referencedColumnName = "id")
 	private PostalCodes postalCode; // dao search
 	
+	@JsonIgnore
 	@ManyToOne
 	@JoinColumn(name="User_id", referencedColumnName = "userId")
 	private User user;
 	
+	@JsonIgnore
 	@OneToOne
 	private Orders orders;
 

@@ -12,15 +12,15 @@ import com.OrderManagement.module.Products;
 public interface AddCartService {
 	// session id is mandate for any function in cart
 
-	public Products addToCartProducts(Integer productId, String sessionId, Integer quantity)
+	public Products addToCartProducts(Integer productId, String sessionId,  Integer userid,Integer quantity)
 			throws UserException, ProductException, LoginException;
 
-	public List<CartDto> viewCart(String sessionId) throws ProductException, LoginException, UserException;
+	public List<CartDto> viewCart(String sessionId, Integer userid) throws ProductException, LoginException, UserException;
 
-	public CartDetails modifyCart(CartDetails carrDetails, String sessionId)
+	public CartDetails modifyCart(CartDetails carrDetails, String sessionId,  Integer userid)
 			throws ProductException, LoginException, UserException;
 
-	public CartDetails deleteFromCart(Integer cartId, String sessionId)
+	public CartDetails deleteFromCart(Integer cartId, String sessionId, Integer userid)
 			throws ProductException, LoginException, UserException;
 
 	

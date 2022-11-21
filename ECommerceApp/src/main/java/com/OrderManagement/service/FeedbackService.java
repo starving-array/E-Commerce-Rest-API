@@ -9,13 +9,17 @@ import com.OrderManagement.module.Feedback;
 
 public interface FeedbackService {
 
-	public Feedback addFeedback(String sessionId, Integer productId, Feedback feedback)
+	public Feedback addFeedback(String sessionId, Integer userid, Integer productId, Feedback feedback)
 			throws LoginException, UserException, ProductException;
 
-	public Feedback modifyFeedback(String sessionId, Feedback feedback)
+	public Feedback modifyFeedback(String sessionId, Integer userid, Feedback feedback)
 			throws LoginException, UserException, ProductException;
 
-	public Feedback deleteFeedback(String sessionId, Integer feedbackId) throws LoginException, UserException;
+	public Feedback deleteFeedback(String sessionId, Integer userid, Integer feedbackId)
+			throws LoginException, UserException;
 
-	public List<Feedback> viewMyFeedback(String sessionId, Integer productId) throws LoginException, UserException, ProductException;
+	public List<Feedback> viewMyFeedback(String sessionId, Integer userid, Integer productId)
+			throws LoginException, UserException, ProductException;
+
+	public List<Feedback> viewAllFeedback(Integer productId) throws ProductException;
 }

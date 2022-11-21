@@ -1,4 +1,4 @@
-package com.OrderManagement.Admin;
+package com.OrderManagement.Admin.module;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;

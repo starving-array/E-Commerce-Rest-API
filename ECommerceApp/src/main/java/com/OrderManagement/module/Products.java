@@ -1,5 +1,7 @@
 package com.OrderManagement.module;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -10,7 +12,6 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -31,7 +32,8 @@ public class Products {
 	private String Brand;
 	private Double sale_Price;
 	private Double market_Price;
-	
+	private LocalDateTime productAddedDate;
+
 	@JsonIgnore
 	@ManyToOne
 	@JoinColumn(name = "category_Id", referencedColumnName = "id")
@@ -39,13 +41,14 @@ public class Products {
 	
 	@JsonIgnore
 	@OneToMany(mappedBy = "products", cascade = CascadeType.ALL)
-	private List<OrderDetails> orders;
+	private List<OrderDetails> orders = new ArrayList<>();
 	
 	@JsonIgnore
 	@OneToMany(mappedBy = "productCart", cascade = CascadeType.ALL)
-	private List<CartDetails> carts;
+	private List<CartDetails> carts = new ArrayList<>();
 	
 	@JsonIgnore
 	@OneToMany(mappedBy = "products", cascade = CascadeType.ALL)
-	private List<Feedback> feedbacks;
+	private List<Feedback> feedbacks = new ArrayList<>();
+	private Integer productFeedBack;
 }

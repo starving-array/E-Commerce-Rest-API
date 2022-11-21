@@ -13,6 +13,19 @@ import org.springframework.web.servlet.NoHandlerFoundException;
 @ControllerAdvice
 public class GlobalException {
 
+	
+	@ExceptionHandler(OtherException.class)
+	public ResponseEntity<ErrorFormatDetails> otherHand(OtherException se, WebRequest req) {
+
+		ErrorFormatDetails err = new ErrorFormatDetails();
+		err.setTimestamp(LocalDateTime.now());
+		err.setMessage(se.getMessage());
+		err.setDetails(req.getDescription(false));
+
+		return new ResponseEntity<ErrorFormatDetails>(err, HttpStatus.NOT_FOUND);
+
+	}
+	
 	@ExceptionHandler(AdminExpectation.class)
 	public ResponseEntity<ErrorFormatDetails> adminHand(AdminExpectation se, WebRequest req) {
 

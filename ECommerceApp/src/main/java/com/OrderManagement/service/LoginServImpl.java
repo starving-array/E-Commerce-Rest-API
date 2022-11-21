@@ -6,7 +6,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.OrderManagement.Admin.AdminCredential;
+import com.OrderManagement.Admin.module.AdminCredential;
 import com.OrderManagement.exceptions.LoginException;
 import com.OrderManagement.exceptions.UserException;
 import com.OrderManagement.module.CurrentSession;

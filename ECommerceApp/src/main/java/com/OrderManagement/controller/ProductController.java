@@ -35,10 +35,6 @@ public class ProductController {
 		return new ResponseEntity<Products>(products, HttpStatus.OK);
 	}
 	
-	@PostMapping("/new")
-	public ResponseEntity<Products> registerProduct(@RequestBody Products products){
-		Products products2 = productService.registerProduct(products);
-		return new ResponseEntity<Products>(products2, HttpStatus.CREATED);
-	}
+	
 
 }

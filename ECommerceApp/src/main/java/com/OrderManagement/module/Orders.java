@@ -52,9 +52,11 @@ public class Orders {
 	@JoinColumn(name = "source", referencedColumnName = "id")
 	private PaymentSource source;
 	
+	@JsonIgnore
 	@OneToOne
 	private Addresses billingAddress;
 	
+	@JsonIgnore
 	@OneToOne
 	private Addresses shippingAddress;
 	

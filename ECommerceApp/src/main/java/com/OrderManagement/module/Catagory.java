@@ -1,5 +1,6 @@
 package com.OrderManagement.module;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -24,5 +25,5 @@ public class Catagory {
 	private String categoryName;
 
 	@OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
-	private List<Products> products;
+	private List<Products> products = new ArrayList<>();
 }
