@@ -16,54 +16,53 @@ public interface ProductDao extends JpaRepository<Products, Integer> {
 
 	public List<Products> findByOrderByProductAddedDate();
 
-	public List<Products> findByCategory_IdByOrderByProductAddedDateDesc(Integer category_Id);
+	public List<Products> findByCategory_IdOrderByProductAddedDateDesc(Integer category_Id);
 
-	public List<Products> findByCategory_IdByOrderByProductAddedDate(Integer category_Id);
+	public List<Products> findByCategory_IdOrderByProductAddedDate(Integer category_Id);
 
-	public List<Products> findByCategory_IdByOrderByProductNameDesc(Integer category_Id);
+	public List<Products> findByCategory_IdOrderByProductNameDesc(Integer category_Id);
 
-	public List<Products> findByCategory_IdByOrderByProductName(Integer category_Id);
+	public List<Products> findByCategory_IdOrderByProductName(Integer category_Id);
 
 // price
-	public List<Products> findByOrderByMarket_PriceDesc();
+	public List<Products> findByOrderBySalepriceDesc();
 
-	public List<Products> findByOrderByMarket_Price();
+	public List<Products> findByOrderBySaleprice();
 
-	public List<Products> findByCategory_IdByOrderByMarket_PriceDesc(Integer category_Id);
+	public List<Products> findByCategory_IdOrderBySalepriceDesc(Integer category_Id);
 
-	public List<Products> findByCategory_IdByOrderByMarket_Price(Integer category_Id);
+	public List<Products> findByCategory_IdOrderBySaleprice(Integer category_Id);
 
 // between
-	public List<Products> findByMarket_PriceBetweenByOrderByMarket_PriceDesc(Double price, Double price2);
+	public List<Products> findBySalepriceBetweenOrderBySalepriceDesc(Double price, Double price2);
 
-	public List<Products> findByMarket_PriceBetweenByOrderByMarket_Price(Double price, Double price2);
+	public List<Products> findBySalepriceBetweenOrderBySaleprice(Double price, Double price2);
 
-	public List<Products> findByCategory_IdAndMarket_PriceBetweenByOrderByMarket_PriceDesc(Integer category_Id,
-			Double price, Double price2);
+	public List<Products> findByCategory_IdAndSalepriceBetweenOrderBySalepriceDesc(Integer category_Id, Double price,
+			Double price2);
 
-	public List<Products> findByCategory_IdAndMarket_PriceBetweenByOrderByMarket_Price(Integer category_Id,
-			Double price, Double price2);
+	public List<Products> findByCategory_IdAndSalepriceBetweenOrderBySaleprice(Integer category_Id, Double price,
+			Double price2);
 
 // min price
-	public List<Products> findByMarket_PriceLessThanEqualByOrderByMarket_PriceDesc(Double price);
+	public List<Products> findBySalepriceLessThanEqualOrderBySalepriceDesc(Double price);
 
-	public List<Products> findByMarket_PriceLessThanEqualByOrderByMarket_Price(Double price);
+	public List<Products> findBySalepriceLessThanEqualOrderBySaleprice(Double price);
 
-	public List<Products> findByCategory_IdAndMarket_PriceLessThanEqualByOrderByMarket_PriceDesc(Integer category_Id,
+	public List<Products> findByCategory_IdAndSalepriceLessThanEqualOrderBySalepriceDesc(Integer category_Id,
 			Double price);
 
-	public List<Products> findByCategory_IdAndMarket_PriceLessThanEqualByOrderByMarket_Price(Integer category_Id,
-			Double price);
+	public List<Products> findByCategory_IdAndSalepriceLessThanEqualOrderBySaleprice(Integer category_Id, Double price);
 
 // max price
-	public List<Products> findByMarket_PriceGreaterThanEqualByOrderByMarket_PriceDesc(Double price);
+	public List<Products> findBySalepriceGreaterThanEqualOrderBySalepriceDesc(Double price);
 
-	public List<Products> findByMarket_PriceGreaterThanEqualByOrderByMarket_Price(Double price);
+	public List<Products> findBySalepriceGreaterThanEqualOrderBySaleprice(Double price);
 
-	public List<Products> findByCategory_IdAndMarket_PriceGreaterThanEqualByOrderByMarket_PriceDesc(Integer category_Id,
+	public List<Products> findByCategory_IdAndSalepriceGreaterThanEqualOrderBySalepriceDesc(Integer category_Id,
 			Double price);
 
-	public List<Products> findByCategory_IdAndMarket_PriceGreaterThanEqualByOrderByMarket_Price(Integer category_Id,
+	public List<Products> findByCategory_IdAndSalepriceGreaterThanEqualOrderBySaleprice(Integer category_Id,
 			Double price);
 
 // feedback
@@ -71,4 +70,10 @@ public interface ProductDao extends JpaRepository<Products, Integer> {
 	public List<Products> findByOrderByProductFeedBackDesc();
 
 	public List<Products> findByOrderByProductFeedBack();
+
+	// rating
+
+	public List<Products> findByOrderByProductRatingDesc();
+
+	public List<Products> findByOrderByProductRating();
 }

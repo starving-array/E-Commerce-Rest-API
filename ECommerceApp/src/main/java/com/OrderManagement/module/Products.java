@@ -24,31 +24,43 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Products {
-	@JsonIgnore 
+	@JsonIgnore
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Integer productId;
 	private String productName;
 	private String Brand;
-	private Double sale_Price;
-	private Double market_Price;
+	private Double saleprice;
+	private Double marketprice;
+	
+	@JsonIgnore
 	private LocalDateTime productAddedDate;
 
 	@JsonIgnore
 	@ManyToOne
 	@JoinColumn(name = "category_Id", referencedColumnName = "id")
 	private Catagory category;
-	
+
 	@JsonIgnore
 	@OneToMany(mappedBy = "products", cascade = CascadeType.ALL)
 	private List<OrderDetails> orders = new ArrayList<>();
-	
+
 	@JsonIgnore
 	@OneToMany(mappedBy = "productCart", cascade = CascadeType.ALL)
 	private List<CartDetails> carts = new ArrayList<>();
-	
+
 	@JsonIgnore
 	@OneToMany(mappedBy = "products", cascade = CascadeType.ALL)
 	private List<Feedback> feedbacks = new ArrayList<>();
+
+	@JsonIgnore
 	private Integer productFeedBack;
+
+	@JsonIgnore
+	@OneToMany(mappedBy = "products", cascade = CascadeType.ALL)
+	private List<Rating> ratings = new ArrayList<>();
+
+	@JsonIgnore
+	private Integer productRating;
+
 }

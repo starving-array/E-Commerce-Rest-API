@@ -4,11 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import com.OrderManagement.Admin.module.AdminCredential;
 import com.OrderManagement.Admin.module.CardCredential;
@@ -20,10 +16,12 @@ import com.OrderManagement.module.Catagory;
 import com.OrderManagement.module.CurrentSession;
 import com.OrderManagement.module.Orders;
 import com.OrderManagement.module.Products;
+import com.OrderManagement.module.User;
 import com.OrderManagement.repository.CatagoryDao;
 import com.OrderManagement.repository.OrderDao;
 import com.OrderManagement.repository.ProductDao;
 import com.OrderManagement.repository.SessionDao;
+import com.OrderManagement.repository.UserDao;
 
 @Service
 public class AdminServImpl implements AdminService {
@@ -42,6 +40,31 @@ public class AdminServImpl implements AdminService {
 
 	@Autowired
 	private CatagoryDao catagoryDao;
+	@Autowired
+	private UserDao udao;
+
+	
+	@Override
+	public List<User> getAllUser(String sessionId) throws UserException,AdminExpectation {
+		// admin valid!
+		CurrentSession cur = sessionDao.findByUuid(sessionId);
+		if (cur == null) {
+			throw new AdminExpectation("Please log in to post");
+		}
+
+		Integer userid = cur.getUserId();
+		String password = new AdminCredential().getPassword();
+		if (userid != 0) {
+			throw new AdminExpectation("Access denied");
+		}
+		// access cleared
+
+		List<User> users = udao.findAll();
+		if (users.isEmpty()) {
+			throw new UserException("No user in database");
+		}
+		return users;
+	}
 
 	@Override
 	public CardCredential addCardCredentials(String sessionId, CardCredential cardCredential) throws AdminExpectation {
@@ -147,7 +170,8 @@ public class AdminServImpl implements AdminService {
 	}
 
 	@Override
-	public Products registerProduct(String sessionId, Products products, Integer catagoryId) throws AdminExpectation, OtherException {
+	public Products registerProduct(String sessionId, Products products, Integer catagoryId)
+			throws AdminExpectation, OtherException {
 		// admin valid!
 		CurrentSession cur = sessionDao.findByUuid(sessionId);
 		if (cur == null) {
@@ -161,7 +185,7 @@ public class AdminServImpl implements AdminService {
 		}
 		// access cleared
 		Optional<Catagory> cOptional = catagoryDao.findById(catagoryId);
-		if(cOptional.isEmpty()) {
+		if (cOptional.isEmpty()) {
 			throw new OtherException("Invalid catagory id");
 		}
 		Catagory catagory = cOptional.get();
@@ -170,7 +194,6 @@ public class AdminServImpl implements AdminService {
 		return productDao.save(products);
 	}
 
-	
 	// catagory
 	@Override
 	public Catagory addCatagory(String sessionId, Catagory catagory) throws OtherException, AdminExpectation {
@@ -188,13 +211,13 @@ public class AdminServImpl implements AdminService {
 		// access cleared
 
 		Catagory catagory2 = catagoryDao.findbyname(catagory.getCategoryName());
-		if(catagory2!=null) {
+		if (catagory2 != null) {
 			throw new OtherException("This catagory already exits");
 		}
 		// if not
 		catagory2 = new Catagory();
 		catagory2.setCategoryName(catagory.getCategoryName());
-		
+
 		return catagoryDao.save(catagory2);
 	}
 

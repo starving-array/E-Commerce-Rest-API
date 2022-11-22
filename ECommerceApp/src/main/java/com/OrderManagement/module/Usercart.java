@@ -1,5 +1,6 @@
 package com.OrderManagement.module;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -33,7 +34,7 @@ public class Usercart {
 	
 	@JsonIgnore
 	@OneToMany(mappedBy = "usercart", cascade = CascadeType.ALL)
-	private List<CartDetails> cartDetails;
+	private List<CartDetails> cartDetails = new ArrayList<>();
 	
 
 }

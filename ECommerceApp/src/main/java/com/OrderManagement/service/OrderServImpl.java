@@ -199,7 +199,7 @@ public class OrderServImpl implements OrderService {
 			products.getCarts().remove(cartDetails); // cart details removed
 
 			newOrders.setOrderDate(LocalDateTime.now());
-			newOrders.setTotal_order_amount(quantuty * products.getSale_Price());
+			newOrders.setTotal_order_amount(quantuty * products.getSaleprice());
 			newOrders.setPrepaid(true);
 
 			newOrders.setPayments(payment);
@@ -224,7 +224,7 @@ public class OrderServImpl implements OrderService {
 			paymentSource.getOrders().add(newOrders); // ## reverse
 
 			ordersList.add(newOrders);
-			orderTotal += quantuty * products.getSale_Price();
+			orderTotal += quantuty * products.getSaleprice();
 
 		}
 		if (orderTotal > cardCredential.getBalance()) {
@@ -364,7 +364,7 @@ public class OrderServImpl implements OrderService {
 			products.getCarts().remove(cartDetails); // cart details removed
 
 			newOrders.setOrderDate(LocalDateTime.now());
-			newOrders.setTotal_order_amount(quantuty * products.getSale_Price());
+			newOrders.setTotal_order_amount(quantuty * products.getSaleprice());
 			newOrders.setPrepaid(true);
 
 			newOrders.setPayments(payment);
@@ -391,7 +391,7 @@ public class OrderServImpl implements OrderService {
 			ordersList.add(newOrders);
 //					orderDao.save(newOrders);
 
-			orderTotal += quantuty * products.getSale_Price();
+			orderTotal += quantuty * products.getSaleprice();
 
 		}
 		if (orderTotal > cardCredential.getBalance()) {
@@ -503,8 +503,8 @@ public class OrderServImpl implements OrderService {
 		Products products = productsOptional.get();
 
 		// sufficient / insufficient balance?
-		double orderTotal = products.getSale_Price() * quantity;
-		if (cardCredential.getBalance() < quantity * products.getSale_Price()) {
+		double orderTotal = products.getSaleprice() * quantity;
+		if (cardCredential.getBalance() < quantity * products.getSaleprice()) {
 			throw new ProductException("Insufficient balance");
 		}
 		// balance updating for the payment method
@@ -530,7 +530,7 @@ public class OrderServImpl implements OrderService {
 		products.getOrders().add(newOrderDetails); // ## reverse
 
 		newOrders.setOrderDate(LocalDateTime.now());
-		newOrders.setTotal_order_amount(quantity * products.getSale_Price());
+		newOrders.setTotal_order_amount(quantity * products.getSaleprice());
 		newOrders.setPrepaid(true);
 
 		newOrders.setPayments(payment);

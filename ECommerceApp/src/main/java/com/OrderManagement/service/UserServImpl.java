@@ -48,14 +48,7 @@ public class UserServImpl implements UserService {
 		return uDao.save(user);
 	}
 
-	@Override
-	public List<User> getAllUser() throws UserException {
-		List<User> users = uDao.findAll();
-		if (users.isEmpty()) {
-			throw new UserException("No user in database");
-		}
-		return users;
-	}
+	
 
 	@Override
 	public User updateAccount(User user, String sessionId) throws UserException, LoginException {

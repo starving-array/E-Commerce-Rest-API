@@ -42,7 +42,7 @@ public class AddToCartImpl implements AddCartService {
 	private CartDetailsDao cartDetailsDao;
 
 	@Override
-	public Products addToCartProducts(Integer productId, String sessionId, Integer userid,Integer quantity)
+	public CartDto addToCartProducts(Integer productId, String sessionId, Integer userid,Integer quantity)
 			throws UserException, ProductException, LoginException {
 		CurrentSession cur = sessionDao.findByUuid(sessionId);
 		if (cur == null) {
@@ -74,7 +74,13 @@ public class AddToCartImpl implements AddCartService {
 		cartDao.save(usercart);
 		udao.save(userCurrent);
 		
-		return null;
+		//cartdto
+		CartDto cartDto = new CartDto();
+		cartDto.setProductName(products.getProductName());
+		cartDto.setProductPrice(products.getSaleprice()*quantity);
+		cartDto.setQuantity(quantity);
+		
+		return cartDto;
 	}
 
 	@Override
@@ -98,7 +104,7 @@ public class AddToCartImpl implements AddCartService {
 			CartDto cart = new CartDto();
 			cart.setQuantity(i.getQuantity());
 			cart.setProductName(products.getProductName());
-			cart.setProductPrice(products.getSale_Price());
+			cart.setProductPrice(products.getSaleprice());
 			// pending dto info can be add here
 
 			// ---------------
@@ -108,7 +114,7 @@ public class AddToCartImpl implements AddCartService {
 	}
 
 	@Override
-	public CartDetails modifyCart(CartDetails cartDetails, String sessionId, Integer userid)
+	public CartDto modifyCart(CartDetails cartDetails, String sessionId, Integer userid)
 			throws ProductException, LoginException, UserException {
 		CurrentSession cur = sessionDao.findByUuid(sessionId);
 		if (cur == null) {
@@ -133,11 +139,17 @@ public class AddToCartImpl implements AddCartService {
 		CartDetails existCartDetails = cartOptional.get();
 		existCartDetails.setQuantity(cartDetails.getQuantity());
 		existCartDetails.setModifyDate(LocalDateTime.now());
-		return cartDetailsDao.save(existCartDetails);
+		cartDetailsDao.save(existCartDetails);
+		CartDto cartDto = new CartDto();
+		cartDto.setProductName(existCartDetails.getProductCart().getProductName());
+		cartDto.setProductPrice(existCartDetails.getProductCart().getSaleprice()*cartDetails.getQuantity());
+		cartDto.setQuantity(cartDetails.getQuantity());
+		
+		return cartDto;
 	}
 
 	@Override
-	public CartDetails deleteFromCart(Integer cartId, String sessionId,Integer userid)
+	public CartDto deleteFromCart(Integer cartId, String sessionId,Integer userid)
 			throws ProductException, LoginException, UserException {
 		CurrentSession cur = sessionDao.findByUuid(sessionId);
 		if (cur == null) {
@@ -157,8 +169,13 @@ public class AddToCartImpl implements AddCartService {
 			throw new UserException("This product doesn't belong to this account");
 		}
 		CartDetails exCartDetails = cartOptional.get();
+		CartDto cartDto = new CartDto();
+		cartDto.setProductName(exCartDetails.getProductCart().getProductName());
+		cartDto.setProductPrice(exCartDetails.getProductCart().getSaleprice()*exCartDetails.getQuantity());
+		cartDto.setQuantity(exCartDetails.getQuantity());
+		
 		cartDetailsDao.delete(exCartDetails);
-		return exCartDetails;
+		return cartDto;
 	}
 
 }

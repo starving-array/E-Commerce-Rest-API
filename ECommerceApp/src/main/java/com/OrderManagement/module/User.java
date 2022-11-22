@@ -67,4 +67,8 @@ public class User {
 	@JsonIgnore
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
 	private List<Feedback> feedbacks = new ArrayList<>();
+	
+	@JsonIgnore
+	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+	private List<Rating> ratings = new ArrayList<>();
 }

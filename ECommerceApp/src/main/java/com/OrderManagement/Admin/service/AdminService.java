@@ -3,16 +3,19 @@ package com.OrderManagement.Admin.service;
 import java.util.List;
 
 import com.OrderManagement.Admin.module.CardCredential;
-import com.OrderManagement.DTO.OrderDto;
 import com.OrderManagement.exceptions.AdminExpectation;
 import com.OrderManagement.exceptions.OtherException;
 import com.OrderManagement.exceptions.UserException;
 import com.OrderManagement.module.Catagory;
 import com.OrderManagement.module.Orders;
 import com.OrderManagement.module.Products;
+import com.OrderManagement.module.User;
 
 public interface AdminService {
-
+	
+	// user
+	public List<User> getAllUser(String sessionId) throws UserException, AdminExpectation;
+	
 	// CardCredential
 	// add --------------------------------------
 	public CardCredential addCardCredentials(String sessionId, CardCredential cardCredential) throws AdminExpectation;
@@ -36,6 +39,7 @@ public interface AdminService {
 	public List<Orders> viewOrderByCustomer(String sessionId, Integer customerId)
 			throws AdminExpectation, UserException;
 
+	
 	// catagories
 	// add -------------------------------
 
