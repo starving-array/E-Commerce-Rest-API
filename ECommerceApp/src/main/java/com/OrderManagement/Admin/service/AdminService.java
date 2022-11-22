@@ -10,6 +10,7 @@ import com.OrderManagement.module.Catagory;
 import com.OrderManagement.module.Orders;
 import com.OrderManagement.module.Products;
 import com.OrderManagement.module.User;
+import com.OrderManagement.module.address.PostalCodes;
 
 public interface AdminService {
 	
@@ -28,6 +29,7 @@ public interface AdminService {
 	// card no from paymentSource
 	public List<Orders> viewOrdersPaidByCardNo(String sessionId, Long cardNumber) throws AdminExpectation;
 
+	// pending
 	public List<Orders> viwOrderShipToPinCode(String sessionId, Integer pincode) throws AdminExpectation;
 
 	public List<Orders> viewOrderBuyFromByPinCode(String sessionId, Integer pincode) throws AdminExpectation;
@@ -41,20 +43,24 @@ public interface AdminService {
 
 	
 	// catagories
-	// add -------------------------------
-
+	// add ------------------------------
 	public Catagory addCatagory(String sessionId, Catagory catagory) throws OtherException, AdminExpectation;
-	// add catagory
 
-	// assign to product => product
 
-	// PINCODE add
-
+	
 	// Products
 	// add ------------------------------
 	public Products registerProduct(String sessionId, Products products, Integer catagoryId)
 			throws AdminExpectation, OtherException;
-	//
+	
+	// PINCODE
+	public List<PostalCodes> addPostalCodes(List<PostalCodes> postalCodes);
+	public List<PostalCodes> deactivatePostalCodes(List<PostalCodes> postalCodes);
+	public List<PostalCodes> reactivePostalCodes(List<PostalCodes> postalCodes);
+	
+	
+	
+	
 	//	report
 	// count , sum , avg by product, by quater, by year
 

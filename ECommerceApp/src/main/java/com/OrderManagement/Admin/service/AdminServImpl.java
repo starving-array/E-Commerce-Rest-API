@@ -17,6 +17,7 @@ import com.OrderManagement.module.CurrentSession;
 import com.OrderManagement.module.Orders;
 import com.OrderManagement.module.Products;
 import com.OrderManagement.module.User;
+import com.OrderManagement.module.address.PostalCodes;
 import com.OrderManagement.repository.CatagoryDao;
 import com.OrderManagement.repository.OrderDao;
 import com.OrderManagement.repository.ProductDao;
@@ -219,6 +220,24 @@ public class AdminServImpl implements AdminService {
 		catagory2.setCategoryName(catagory.getCategoryName());
 
 		return catagoryDao.save(catagory2);
+	}
+
+	@Override
+	public List<PostalCodes> addPostalCodes(List<PostalCodes> postalCodes) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<PostalCodes> deactivatePostalCodes(List<PostalCodes> postalCodes) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<PostalCodes> reactivePostalCodes(List<PostalCodes> postalCodes) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

@@ -51,7 +51,6 @@ public class AdminController {
 	}
 
 	// product
-	// product
 	@PostMapping("/product/new/{sessionid}")
 	public ResponseEntity<Products> registerProduct(@PathVariable("sessionid") String sessionId,
 			@RequestBody Products products, @PathVariable("catagoryid") Integer catagoryId)
