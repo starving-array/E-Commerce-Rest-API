@@ -1,5 +1,6 @@
 package com.OrderManagement.module.address;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -43,7 +44,7 @@ public class Addresses {
 	private User user;
 	
 	@JsonIgnore
-	@OneToOne
+	@OneToOne(cascade = CascadeType.ALL)
 	private Orders orders;
 
 }

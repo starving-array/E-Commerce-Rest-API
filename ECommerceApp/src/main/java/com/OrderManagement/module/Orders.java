@@ -33,7 +33,7 @@ public class Orders {
 	
 	private Boolean prepaid;
 	 
-
+    @JsonIgnore
 	@ManyToOne
 	@JoinColumn(name = "Payment_Id", referencedColumnName = "id")
 	private Payment payments;

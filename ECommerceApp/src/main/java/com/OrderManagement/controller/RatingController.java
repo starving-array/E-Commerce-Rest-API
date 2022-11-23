@@ -1,5 +1,7 @@
 package com.OrderManagement.controller;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,7 +27,7 @@ public class RatingController {
 	@PostMapping("/{sessionid}/{userid}/{productid}")
 	public ResponseEntity<Rating> addRating(@PathVariable("sessionid") String sessionId,
 			@PathVariable("userid") Integer userid, @PathVariable("productid") Integer productId,
-			@RequestBody Rating rating) throws LoginException, UserException, ProductException {
+			@Valid @RequestBody Rating rating) throws LoginException, UserException, ProductException {
 		Rating rating2 = ratingService.addFeedback(sessionId, userid, productId, rating);
 		return new ResponseEntity<Rating>(rating2, HttpStatus.CREATED);
 	}

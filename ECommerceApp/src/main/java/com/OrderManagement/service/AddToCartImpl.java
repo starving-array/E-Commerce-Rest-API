@@ -64,15 +64,23 @@ public class AddToCartImpl implements AddCartService {
 		Products products = postopt.get();
 
 		Usercart usercart = userCurrent.getCart();
-
-		CartDetails cartDetails = new CartDetails();
-		cartDetails.setProductCart(products);
-		cartDetails.setQuantity(quantity);
-		cartDetails.setUsercart(usercart);
-		cartDetails.setProductAddDate(LocalDateTime.now());
-		usercart.getCartDetails().add(cartDetails);
+		
+		// check to see if the product already
+		// in the cart, then increment the quantity
+		
+		CartDetails cartDetails = cartDao.getByProduct(productId);
+		if(cartDetails == null) {
+			cartDetails = new CartDetails();
+			cartDetails.setProductCart(products);
+			cartDetails.setQuantity(quantity);
+			cartDetails.setUsercart(usercart);
+			cartDetails.setProductAddDate(LocalDateTime.now());
+			usercart.getCartDetails().add(cartDetails);
+		}else {
+			cartDetails.setQuantity(cartDetails.getQuantity()+quantity);
+		}
 		cartDao.save(usercart);
-		udao.save(userCurrent);
+//		udao.save(userCurrent);
 		
 		//cartdto
 		CartDto cartDto = new CartDto();

@@ -1,5 +1,6 @@
 package com.OrderManagement.Admin.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -8,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import com.OrderManagement.Admin.module.AdminCredential;
 import com.OrderManagement.Admin.module.CardCredential;
+import com.OrderManagement.Admin.repository.AdminDao;
 import com.OrderManagement.Admin.repository.CardCredentialDao;
 import com.OrderManagement.exceptions.AdminExpectation;
 import com.OrderManagement.exceptions.OtherException;
@@ -44,9 +46,11 @@ public class AdminServImpl implements AdminService {
 	@Autowired
 	private UserDao udao;
 
-	
+	@Autowired
+	private AdminDao adminDao;
+
 	@Override
-	public List<User> getAllUser(String sessionId) throws UserException,AdminExpectation {
+	public List<User> getAllUser(String sessionId) throws UserException, AdminExpectation {
 		// admin valid!
 		CurrentSession cur = sessionDao.findByUuid(sessionId);
 		if (cur == null) {
@@ -141,8 +145,11 @@ public class AdminServImpl implements AdminService {
 
 	@Override
 	public List<Orders> viwOrderShipToPinCode(String sessionId, Integer pincode) throws AdminExpectation {
-		// TODO Auto-generated method stub
-		return null;
+		List<Orders> list = adminDao.viwOrderShipToPinCode(pincode);
+		if(list.isEmpty()) {
+			throw new AdminExpectation("No orders found that sent to this PIN "+pincode);
+		}
+		return list;
 	}
 
 	@Override
@@ -185,11 +192,13 @@ public class AdminServImpl implements AdminService {
 			throw new AdminExpectation("Access denied");
 		}
 		// access cleared
+		
 		Optional<Catagory> cOptional = catagoryDao.findById(catagoryId);
 		if (cOptional.isEmpty()) {
 			throw new OtherException("Invalid catagory id");
 		}
 		Catagory catagory = cOptional.get();
+		products.setProductAddedDate(LocalDateTime.now());
 		catagory.getProducts().add(products);
 		products.setCategory(catagory);
 		return productDao.save(products);

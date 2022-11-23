@@ -61,6 +61,6 @@ public class Products {
 	private List<Rating> ratings = new ArrayList<>();
 
 	@JsonIgnore
-	private Integer productRating;
+	private Integer productRating = 0;
 
 }

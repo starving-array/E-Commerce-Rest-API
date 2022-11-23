@@ -36,7 +36,7 @@ public class CartController {
 		return new ResponseEntity<CartDto>(products, HttpStatus.CREATED);
 	}
 
-	@GetMapping("/all/{sessionid}/{userid)")
+	@GetMapping("/all/{sessionid}/{userid}")
 	public ResponseEntity<List<CartDto>> viewCart(@PathVariable("sessionid") String sessionId,
 			@PathVariable("userid") Integer userid) throws ProductException, LoginException, UserException {
 		List<CartDto> list = addCartService.viewCart(sessionId, userid);

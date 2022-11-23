@@ -49,9 +49,17 @@ public class AdminController {
 		List<Orders> list = adminService.viewOrdersPaidByCardNo(sessionId, cardNumber);
 		return new ResponseEntity<List<Orders>>(list, HttpStatus.OK);
 	}
+	
+	// multi join tasks
+	@GetMapping("/bypostalcode/{sessionid}/{cardno}")
+	public ResponseEntity<List<Orders>> viewOrderByPostalCode(@PathVariable("sessionid") String sessionId,
+			@PathVariable("postal") Integer pincode) throws AdminExpectation {
+		List<Orders> list = adminService.viwOrderShipToPinCode(sessionId, pincode);
+		return new ResponseEntity<List<Orders>>(list, HttpStatus.OK);
+	}
 
 	// product
-	@PostMapping("/product/new/{sessionid}")
+	@PostMapping("/product/new/{sessionid}/{catagoryid}")
 	public ResponseEntity<Products> registerProduct(@PathVariable("sessionid") String sessionId,
 			@RequestBody Products products, @PathVariable("catagoryid") Integer catagoryId)
 			throws AdminExpectation, OtherException {
