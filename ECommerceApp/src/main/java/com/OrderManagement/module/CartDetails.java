@@ -8,6 +8,9 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotBlank;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -22,6 +25,9 @@ public class CartDetails {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Integer cartDetailId;
+
+	
+	@Min(value = 1, message = "Min qty should be 1")
 	private Integer quantity;
 
 	@JsonIgnore

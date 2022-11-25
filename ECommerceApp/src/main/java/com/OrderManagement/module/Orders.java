@@ -53,11 +53,8 @@ public class Orders {
 	private PaymentSource source;
 	
 	@JsonIgnore
-	@OneToOne
-	private Addresses billingAddress;
-	
-	@JsonIgnore
-	@OneToOne
+	@ManyToOne
+	@JoinColumn(name = "soid", referencedColumnName = "id")
 	private Addresses shippingAddress;
 	
 }

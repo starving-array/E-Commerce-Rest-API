@@ -2,9 +2,12 @@ package com.OrderManagement.controller;
 
 import java.util.List;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -28,14 +31,19 @@ public class CartController {
 	@Autowired
 	private AddCartService addCartService;
 
+	@CrossOrigin
 	@PostMapping("{sessionid}/{productid}/{quantity}/{userid}")
-	public ResponseEntity<CartDto> addToCart(@PathVariable("productid") Integer productId,
-			@PathVariable("sessionid") String sessionId, @PathVariable("userid") Integer userid,
-			@PathVariable("quantity") Integer quantity) throws UserException, ProductException, LoginException {
+	public ResponseEntity<CartDto> addToCart(
+			@PathVariable("productid") Integer productId,
+			@PathVariable("sessionid") String sessionId, 
+			@PathVariable("userid") Integer userid,
+			@PathVariable("quantity") Integer quantity
+			) throws UserException, ProductException, LoginException {
 		CartDto products = addCartService.addToCartProducts(productId, sessionId, userid, quantity);
 		return new ResponseEntity<CartDto>(products, HttpStatus.CREATED);
 	}
 
+	@CrossOrigin
 	@GetMapping("/all/{sessionid}/{userid}")
 	public ResponseEntity<List<CartDto>> viewCart(@PathVariable("sessionid") String sessionId,
 			@PathVariable("userid") Integer userid) throws ProductException, LoginException, UserException {
@@ -43,14 +51,18 @@ public class CartController {
 		return new ResponseEntity<List<CartDto>>(list, HttpStatus.OK);
 	}
 
+	@CrossOrigin
 	@PatchMapping("/modify/{sessionid}/{userid}")
-	public ResponseEntity<CartDto> modifyCart(@RequestBody CartDetails cartDetails,
-			@PathVariable("sessionid") String sessionId, @PathVariable("userid") Integer userid)
+	public ResponseEntity<CartDto> modifyCart(
+			@RequestBody CartDetails cartDetails,
+			@PathVariable("sessionid") String sessionId, 
+			@PathVariable("userid") Integer userid)
 			throws ProductException, LoginException, UserException {
 		CartDto cartDetails2 = addCartService.modifyCart(cartDetails, sessionId, userid);
 		return new ResponseEntity<CartDto>(cartDetails2, HttpStatus.OK);
 	}
 
+	@CrossOrigin
 	@DeleteMapping("/remove/{cartid}/{sessionid}/{userid}")
 	public ResponseEntity<CartDto> deleteFromCart(@PathVariable("cartid") Integer cartId,
 			@PathVariable("sessionid") String sessionId, @PathVariable("userid") Integer userid)

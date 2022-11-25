@@ -23,11 +23,11 @@ import lombok.NoArgsConstructor;
 public class Payment {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
-	@JsonIgnore
 	private Integer id;
 	private String methodName;
 	
 	// by default true
+	@JsonIgnore
 	private boolean active;
 	
 

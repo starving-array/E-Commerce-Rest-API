@@ -19,7 +19,7 @@ public class OrderManagementApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(OrderManagementApplication.class, args);
 	}
-	
+
 	@Bean
 	public Docket swaggerConfiguration() {
 		return new Docket(DocumentationType.SWAGGER_2).select()
@@ -28,8 +28,9 @@ public class OrderManagementApplication {
 
 	private ApiInfo apiDetails() {
 		return new ApiInfo("E-commerce Application", "Sample api for Blog app", "1.0", "@Archie",
-				new springfox.documentation.service.Contact("Contact me!", "#", "gowork.archis@gmail.com"), "API l.0",
-				"https://github.com/starving-array", Collections.emptyList());
+				new springfox.documentation.service.Contact("Contact me!", "https://www.linkedin.com/in/archeese/",
+						"gowork.archis@gmail.com"),
+				"API l.0", "https://github.com/starving-array", Collections.emptyList());
 	}
 
 }

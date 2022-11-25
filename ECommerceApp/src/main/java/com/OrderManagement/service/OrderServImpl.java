@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import com.OrderManagement.Admin.module.CardCredential;
 import com.OrderManagement.Admin.repository.CardCredentialDao;
+import com.OrderManagement.DTO.OrderDto;
 import com.OrderManagement.exceptions.LoginException;
 import com.OrderManagement.exceptions.OrderException;
 import com.OrderManagement.exceptions.ProductException;
@@ -25,7 +26,7 @@ import com.OrderManagement.module.User;
 import com.OrderManagement.module.Usercart;
 import com.OrderManagement.module.address.Addresses;
 import com.OrderManagement.module.address.PostalCodes;
-import com.OrderManagement.paymentMethods.CardFormat;
+import com.OrderManagement.paymentMethods.OrderFormFormat;
 import com.OrderManagement.repository.AddressDao;
 import com.OrderManagement.repository.CartDao;
 import com.OrderManagement.repository.CartDetailsDao;
@@ -74,9 +75,9 @@ public class OrderServImpl implements OrderService {
 	private PostalDao postalDao;
 
 	@Override
-	public List<Orders> placeCartOrderPertial(List<Integer> cartIds, String sessionId, Integer userid,
-			CardFormat cardFormat, Integer usercartId, Addresses billingAddress, Addresses shipAddresses,
-			Integer billPincode, Integer shipPinCode) throws ProductException, LoginException, UserException {
+	public List<OrderDto> placeCartOrderPertial(List<Integer> cartIds, String sessionId, Integer userid, Long cardNo,
+			Integer cardPin, Integer usercartId, Addresses shipAddresses, Integer shipPinCode)
+			throws ProductException, LoginException, UserException {
 
 		// user valid!
 		// Check if the session id is valid
@@ -95,15 +96,7 @@ public class OrderServImpl implements OrderService {
 		// Address check
 		// Address check
 		// +++++++++++++++++++++++++++++++++++
-		Addresses billingFromAddressToAppend = new Addresses();
 		Addresses shipToAddressToAppend = new Addresses();
-
-		// check if pincode serviceable for shipping
-		PostalCodes shipCode = postalDao.getByCode(shipPinCode);
-		if (shipCode == null || !shipCode.isActive()) {
-			throw new ProductException("Product not deliverable to this localtion now");
-		}
-
 		// future upgrade analytic=> log this code as to see how many request came for a
 		// perticular pincode
 		shipToAddressToAppend.setName(shipAddresses.getName());
@@ -113,36 +106,18 @@ public class OrderServImpl implements OrderService {
 		shipToAddressToAppend.setState(shipAddresses.getState());
 		shipToAddressToAppend.setCountry(shipAddresses.getCountry());
 		shipToAddressToAppend.setLandmark(shipAddresses.getLandmark());
-
-		if (shipCode == null) {
-			shipCode = new PostalCodes();
-			shipCode.setPINCODE(shipPinCode);
-			shipCode.setActive(true);
-			shipCode = postalDao.save(shipCode);
+		// check if pincode serviceable for shipping
+		PostalCodes shipCode = postalDao.getByCode(shipPinCode);
+		if (shipCode == null || !shipCode.isActive()) {
+			throw new ProductException("Product not deliverable to this localtion now");
 		}
+
 		shipToAddressToAppend.setPostalCode(shipCode);
-		shipToAddressToAppend.setUser(userCurrent);
+		shipCode.getAddresses().add(shipToAddressToAppend); // reverse
 
-		// billing from
-		billingFromAddressToAppend.setName(billingAddress.getName());
-		billingFromAddressToAppend.setContact(billingAddress.getContact());
-		billingFromAddressToAppend.setHouseNo(billingAddress.getHouseNo());
-		billingFromAddressToAppend.setCity(billingAddress.getCity());
-		billingFromAddressToAppend.setState(billingAddress.getState());
-		billingFromAddressToAppend.setCountry(billingAddress.getCountry());
-		billingFromAddressToAppend.setLandmark(billingAddress.getLandmark());
+		shipToAddressToAppend = addressDao.save(shipToAddressToAppend); // flushing
 
-		PostalCodes billCode = postalDao.getByCode(billPincode);
-		if (billCode == null) {
-			billCode = new PostalCodes();
-			billCode.setPINCODE(billPincode);
-			billCode.setActive(true);
-			billCode = postalDao.save(billCode);
-		}
-		billingFromAddressToAppend.setPostalCode(billCode);
-		billingFromAddressToAppend.setUser(userCurrent);
 		// order will be assigned below and also flused down below at end
-
 		// +++++++++++++++++++++++++++++++++++++
 		// --------------------------
 
@@ -158,7 +133,7 @@ public class OrderServImpl implements OrderService {
 		}
 
 		// card vaild!
-		CardCredential cardCredential = cardCredentialDao.matchCard(cardFormat.getCardNo(), cardFormat.getPin());
+		CardCredential cardCredential = cardCredentialDao.matchCard(cardNo, cardPin);
 		if (cardCredential == null) {
 			throw new ProductException("Invalid card");
 		}
@@ -169,10 +144,10 @@ public class OrderServImpl implements OrderService {
 			throw new ProductException("Payment method not supported now");
 		}
 		// source payment
-		PaymentSource paymentSource = paymentSourceDao.findByAccountInfo(cardFormat.getCardNo().toString());
+		PaymentSource paymentSource = paymentSourceDao.findByAccountInfo(cardNo.toString());
 		if (paymentSource == null) {
 			paymentSource = new PaymentSource();
-			paymentSource.setAccountInfo(cardFormat.getCardNo().toString());
+			paymentSource.setAccountInfo(cardNo.toString());
 			paymentSource = paymentSourceDao.save(paymentSource);
 		}
 
@@ -212,13 +187,9 @@ public class OrderServImpl implements OrderService {
 			newOrderDetails.setOrders(newOrders); // order added to order details
 
 			// address
-			// billing
-			newOrders.setBillingAddress(billingFromAddressToAppend);
-			billingFromAddressToAppend.setOrders(newOrders); // ## reverse
-
 			// shipping
 			newOrders.setShippingAddress(shipToAddressToAppend);
-			shipAddresses.setOrders(newOrders); // ## reverse
+			shipAddresses.getOrders().add(newOrders); // ## reverse
 
 			newOrders.setSource(paymentSource);
 			paymentSource.getOrders().add(newOrders); // ## reverse
@@ -233,8 +204,8 @@ public class OrderServImpl implements OrderService {
 		cardCredential.setBalance(cardCredential.getBalance() - orderTotal);
 		cardCredentialDao.save(cardCredential);
 
-		for (Orders o : ordersList) {
-			orderDao.save(o);
+		for (int i = 0; i < ordersList.size(); i++) {
+			ordersList.set(i, orderDao.save(ordersList.get(i)));
 		}
 
 		for (Integer id : cartIds) {
@@ -244,13 +215,16 @@ public class OrderServImpl implements OrderService {
 			cartDetailsDao.delete(cartDetails);
 		}
 
-		return ordersList;
+		List<OrderDto> listDtoOrder = new ArrayList<>();
+		for (Orders o : ordersList) {
+			listDtoOrder.add(new OrderDto().getDtoOrder(o));
+		}
+		return listDtoOrder;
 	}
 
 	@Override
-	public List<Orders> placeAllCartOrder(String sessionId, Integer userid, CardFormat cardFormat,
-			Addresses billingAddress, Addresses shipAddresses, Integer billPincode, Integer shipPinCode)
-			throws ProductException, LoginException, UserException {
+	public List<OrderDto> placeAllCartOrder(String sessionId, Integer userid, Long cardNo, Integer cardPin,
+			Addresses shipAddresses, Integer shipPinCode) throws ProductException, LoginException, UserException {
 
 		// user valid!
 		CurrentSession cur = sessionDao.findByUuid(sessionId);
@@ -271,12 +245,6 @@ public class OrderServImpl implements OrderService {
 		Addresses billingFromAddressToAppend = new Addresses();
 		Addresses shipToAddressToAppend = new Addresses();
 
-		// check if pincode serviceable for shipping
-		PostalCodes shipCode = postalDao.getByCode(shipPinCode);
-		if (shipCode == null || !shipCode.isActive()) {
-			throw new ProductException("Product not deliverable to this localtion now");
-		}
-
 		// future upgrade analytic=> log this code as to see how many request came for a
 		// perticular pincode
 		shipToAddressToAppend.setName(shipAddresses.getName());
@@ -286,34 +254,15 @@ public class OrderServImpl implements OrderService {
 		shipToAddressToAppend.setState(shipAddresses.getState());
 		shipToAddressToAppend.setCountry(shipAddresses.getCountry());
 		shipToAddressToAppend.setLandmark(shipAddresses.getLandmark());
-
-		if (shipCode == null) {
-			shipCode = new PostalCodes();
-			shipCode.setPINCODE(shipPinCode);
-			shipCode.setActive(true);
-			shipCode = postalDao.save(shipCode);
+		// check if pincode serviceable for shipping
+		PostalCodes shipCode = postalDao.getByCode(shipPinCode);
+		if (shipCode == null || !shipCode.isActive()) {
+			throw new ProductException("Product not deliverable to this localtion now");
 		}
 		shipToAddressToAppend.setPostalCode(shipCode);
-		shipToAddressToAppend.setUser(userCurrent);
+		shipCode.getAddresses().add(shipToAddressToAppend); // reverse
 
-		// billing from
-		billingFromAddressToAppend.setName(billingAddress.getName());
-		billingFromAddressToAppend.setContact(billingAddress.getContact());
-		billingFromAddressToAppend.setHouseNo(billingAddress.getHouseNo());
-		billingFromAddressToAppend.setCity(billingAddress.getCity());
-		billingFromAddressToAppend.setState(billingAddress.getState());
-		billingFromAddressToAppend.setCountry(billingAddress.getCountry());
-		billingFromAddressToAppend.setLandmark(billingAddress.getLandmark());
-
-		PostalCodes billCode = postalDao.getByCode(billPincode);
-		if (billCode == null) {
-			billCode = new PostalCodes();
-			billCode.setPINCODE(billPincode);
-			billCode.setActive(true);
-			billCode = postalDao.save(billCode);
-		}
-		billingFromAddressToAppend.setPostalCode(billCode);
-		billingFromAddressToAppend.setUser(userCurrent);
+		shipToAddressToAppend = addressDao.save(shipToAddressToAppend); // flushing
 		// order will be assigned below and also flused down below at end
 
 		// +++++++++++++++++++++++++++++++++++++
@@ -328,7 +277,7 @@ public class OrderServImpl implements OrderService {
 		Usercart usercart = userCartOptional.get();
 
 		// card vaild!
-		CardCredential cardCredential = cardCredentialDao.matchCard(cardFormat.getCardNo(), cardFormat.getPin());
+		CardCredential cardCredential = cardCredentialDao.matchCard(cardNo, cardPin);
 		if (cardCredential == null) {
 			throw new ProductException("Invalid card");
 		}
@@ -339,10 +288,10 @@ public class OrderServImpl implements OrderService {
 			throw new ProductException("Payment method not supported now");
 		}
 		// source payment
-		PaymentSource paymentSource = paymentSourceDao.findByAccountInfo(cardFormat.getCardNo().toString());
+		PaymentSource paymentSource = paymentSourceDao.findByAccountInfo(cardNo.toString());
 		if (paymentSource == null) {
 			paymentSource = new PaymentSource();
-			paymentSource.setAccountInfo(cardFormat.getCardNo().toString());
+			paymentSource.setAccountInfo(cardNo.toString());
 			paymentSource = paymentSourceDao.save(paymentSource);
 		}
 
@@ -374,13 +323,9 @@ public class OrderServImpl implements OrderService {
 			userCurrent.getOrders().add(newOrders); // ## reverse
 
 			// address
-			// billing
-			newOrders.setBillingAddress(billingFromAddressToAppend);
-			billingFromAddressToAppend.setOrders(newOrders); // ## reverse
-
 			// shipping
 			newOrders.setShippingAddress(shipToAddressToAppend);
-			shipAddresses.setOrders(newOrders); // ## reverse
+			shipAddresses.getOrders().add(newOrders); // ## reverse
 
 			newOrders.setOrderDetails(newOrderDetails);
 			newOrderDetails.setOrders(newOrders); // order added to order details
@@ -394,28 +339,34 @@ public class OrderServImpl implements OrderService {
 			orderTotal += quantuty * products.getSaleprice();
 
 		}
+
+		// check if blalance if sufficient
 		if (orderTotal > cardCredential.getBalance()) {
 			throw new ProductException("Insufficient balance");
 		}
+
 		cardCredential.setBalance(cardCredential.getBalance() - orderTotal);
 		cardCredentialDao.save(cardCredential);
 
-		for (Orders o : ordersList) {
-			orderDao.save(o);
+		for (int i = 0; i < ordersList.size(); i++) {
+			ordersList.set(i, orderDao.save(ordersList.get(i)));
 		}
 
 		for (CartDetails cartDetails : cartDetailsList) {
 			userCurrent.getCart().getCartDetails().remove(cartDetails);
 			cartDetailsDao.delete(cartDetails);
 		}
-//				udao.save(userCurrent);
-		return ordersList;
+		List<OrderDto> listDtoOrder = new ArrayList<>();
+		for (Orders o : ordersList) {
+			listDtoOrder.add(new OrderDto().getDtoOrder(o));
+		}
+		return listDtoOrder;
 	}
 
 	@Override
-	public Orders placeOrderById(String sessionId, Integer userid, CardFormat cardFormat, Integer productId,
-			Integer quantity, Addresses billingAddress, Addresses shipAddresses, Integer billPincode,
-			Integer shipPinCode) throws UserException, LoginException, ProductException {
+	public OrderDto placeOrderById(String sessionId, Integer userid, Long cardNo, Integer cardPin, Integer productId,
+			Integer quantity, Addresses shipAddresses, Integer shipPinCode)
+			throws UserException, LoginException, ProductException {
 		// user valid!
 		CurrentSession cur = sessionDao.findByUuid(sessionId);
 		if (cur == null) {
@@ -432,16 +383,7 @@ public class OrderServImpl implements OrderService {
 		// Address check
 		// Address check
 		// +++++++++++++++++++++++++++++++++++
-		Addresses billingFromAddressToAppend = new Addresses();
 		Addresses shipToAddressToAppend = new Addresses();
-
-		// check if pincode serviceable for shipping
-		PostalCodes shipCode = postalDao.getByCode(shipPinCode);
-		if (shipCode == null || !shipCode.isActive()) {
-			throw new ProductException("Product not deliverable to this localtion now");
-		}
-
-		// future upgrade analytic=> log this code as to see how many request came for a
 		// perticular pincode
 		shipToAddressToAppend.setName(shipAddresses.getName());
 		shipToAddressToAppend.setContact(shipAddresses.getContact());
@@ -451,40 +393,23 @@ public class OrderServImpl implements OrderService {
 		shipToAddressToAppend.setCountry(shipAddresses.getCountry());
 		shipToAddressToAppend.setLandmark(shipAddresses.getLandmark());
 
-		if (shipCode == null) {
-			shipCode = new PostalCodes();
-			shipCode.setPINCODE(shipPinCode);
-			shipCode.setActive(true);
-			shipCode = postalDao.save(shipCode);
+		// check if pincode serviceable for shipping
+		PostalCodes shipCode = postalDao.getByCode(shipPinCode);
+		if (shipCode == null || !shipCode.isActive()) {
+			throw new ProductException("Product not deliverable to this localtion now");
 		}
+
 		shipToAddressToAppend.setPostalCode(shipCode);
-		shipToAddressToAppend.setUser(userCurrent);
+		shipCode.getAddresses().add(shipToAddressToAppend); // reverse
 
-		// billing from
-		billingFromAddressToAppend.setName(billingAddress.getName());
-		billingFromAddressToAppend.setContact(billingAddress.getContact());
-		billingFromAddressToAppend.setHouseNo(billingAddress.getHouseNo());
-		billingFromAddressToAppend.setCity(billingAddress.getCity());
-		billingFromAddressToAppend.setState(billingAddress.getState());
-		billingFromAddressToAppend.setCountry(billingAddress.getCountry());
-		billingFromAddressToAppend.setLandmark(billingAddress.getLandmark());
-
-		PostalCodes billCode = postalDao.getByCode(billPincode);
-		if (billCode == null) {
-			billCode = new PostalCodes();
-			billCode.setPINCODE(billPincode);
-			billCode.setActive(true);
-			billCode = postalDao.save(billCode);
-		}
-		billingFromAddressToAppend.setPostalCode(billCode);
-		billingFromAddressToAppend.setUser(userCurrent);
+		shipToAddressToAppend = addressDao.save(shipToAddressToAppend); // flushing
 		// order will be assigned below and also flused down below at end
 
 		// +++++++++++++++++++++++++++++++++++++
 		// --------------------------
 
 		// card vaild!
-		CardCredential cardCredential = cardCredentialDao.matchCard(cardFormat.getCardNo(), cardFormat.getPin());
+		CardCredential cardCredential = cardCredentialDao.matchCard(cardNo, cardPin);
 		if (cardCredential == null) {
 			throw new ProductException("Invalid card");
 		}
@@ -497,6 +422,7 @@ public class OrderServImpl implements OrderService {
 
 		// Product verification
 		Optional<Products> productsOptional = pdao.findById(productId);
+
 		if (productsOptional.isEmpty()) {
 			throw new ProductException("Product doesn't exist");
 		}
@@ -504,7 +430,7 @@ public class OrderServImpl implements OrderService {
 
 		// sufficient / insufficient balance?
 		double orderTotal = products.getSaleprice() * quantity;
-		if (cardCredential.getBalance() < quantity * products.getSaleprice()) {
+		if (cardCredential.getBalance() < orderTotal) {
 			throw new ProductException("Insufficient balance");
 		}
 		// balance updating for the payment method
@@ -512,10 +438,10 @@ public class OrderServImpl implements OrderService {
 		cardCredentialDao.save(cardCredential);
 
 		// source payment
-		PaymentSource paymentSource = paymentSourceDao.findByAccountInfo(cardFormat.getCardNo().toString());
+		PaymentSource paymentSource = paymentSourceDao.findByAccountInfo(cardNo.toString());
 		if (paymentSource == null) {
 			paymentSource = new PaymentSource();
-			paymentSource.setAccountInfo(cardFormat.getCardNo().toString());
+			paymentSource.setAccountInfo(cardNo.toString());
 			paymentSource = paymentSourceDao.save(paymentSource);
 		}
 
@@ -540,13 +466,9 @@ public class OrderServImpl implements OrderService {
 		userCurrent.getOrders().add(newOrders); // ## reverse
 
 		// address
-		// billing
-		newOrders.setBillingAddress(billingFromAddressToAppend);
-		billingFromAddressToAppend.setOrders(newOrders); // ## reverse
-
 		// shipping
 		newOrders.setShippingAddress(shipToAddressToAppend);
-		shipAddresses.setOrders(newOrders); // ## reverse
+		shipAddresses.getOrders().add(newOrders); // ## reverse
 
 		newOrders.setOrderDetails(newOrderDetails);
 		newOrderDetails.setOrders(newOrders); // order added to order details
@@ -555,11 +477,14 @@ public class OrderServImpl implements OrderService {
 		paymentSource.getOrders().add(newOrders); // ## reverse
 
 		newOrders = orderDao.save(newOrders);
-		return newOrders;
+
+		OrderDto orderDto = new OrderDto().getDtoOrder(newOrders);
+
+		return orderDto;
 	}
 
 	@Override
-	public Orders viewOrderById(String sessionId, Integer userid, Integer orderId)
+	public OrderDto viewOrderById(String sessionId, Integer userid, Integer orderId)
 			throws UserException, LoginException, OrderException {
 		CurrentSession cur = sessionDao.findByUuid(sessionId);
 		if (cur == null) {
@@ -577,11 +502,13 @@ public class OrderServImpl implements OrderService {
 		if (orders == null) {
 			throw new OrderException("Order not exists with id " + orderId);
 		}
-		return orders;
+		OrderDto orderDto = new OrderDto().getDtoOrder(orders);
+
+		return orderDto;
 	}
 
 	@Override
-	public List<Orders> viewAllOrder(String sessionId, Integer userid)
+	public List<OrderDto> viewAllOrder(String sessionId, Integer userid)
 			throws UserException, LoginException, OrderException {
 		CurrentSession cur = sessionDao.findByUuid(sessionId);
 		if (cur == null) {
@@ -596,7 +523,11 @@ public class OrderServImpl implements OrderService {
 		User userCurrent = user.get();
 
 		List<Orders> listOfOrders = orderDao.findTop5ByOrderByOrderIdDesc(); // userCurrent.getOrders();
-		return listOfOrders;
+		List<OrderDto> listDtoOrder = new ArrayList<>();
+		for (Orders o : listOfOrders) {
+			listDtoOrder.add(new OrderDto().getDtoOrder(o));
+		}
+		return listDtoOrder;
 	}
 
 }

@@ -77,6 +77,7 @@ public class AddToCartImpl implements AddCartService {
 			cartDetails.setProductAddDate(LocalDateTime.now());
 			usercart.getCartDetails().add(cartDetails);
 		}else {
+			cartDetails.setModifyDate(LocalDateTime.now());
 			cartDetails.setQuantity(cartDetails.getQuantity()+quantity);
 		}
 		cartDao.save(usercart);

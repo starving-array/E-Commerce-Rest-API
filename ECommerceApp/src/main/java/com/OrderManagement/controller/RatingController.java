@@ -5,6 +5,7 @@ import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -24,9 +25,12 @@ public class RatingController {
 	@Autowired
 	private RatingService ratingService;
 
+	@CrossOrigin
 	@PostMapping("/{sessionid}/{userid}/{productid}")
-	public ResponseEntity<Rating> addRating(@PathVariable("sessionid") String sessionId,
-			@PathVariable("userid") Integer userid, @PathVariable("productid") Integer productId,
+	public ResponseEntity<Rating> addRating(
+			@PathVariable("sessionid") String sessionId,
+			@PathVariable("userid") Integer userid, 
+			@PathVariable("productid") Integer productId,
 			@Valid @RequestBody Rating rating) throws LoginException, UserException, ProductException {
 		Rating rating2 = ratingService.addFeedback(sessionId, userid, productId, rating);
 		return new ResponseEntity<Rating>(rating2, HttpStatus.CREATED);

@@ -57,7 +57,8 @@ public class RatingServImpl implements RatingService {
 		}
 		Products products = pOptional.get();
 
-		Rating rating2 = ratingDao.getByUser(userid);
+		Rating rating2 = ratingDao.getByUserAndproduct(userid, products.getProductId());
+
 		if (rating2 == null) {
 			rating2 = new Rating();
 			rating2.setCreateDate(LocalDateTime.now());
@@ -66,12 +67,14 @@ public class RatingServImpl implements RatingService {
 			Integer totalRatings = products.getProductRating() + rating.getRate();
 			Integer avgRatings = totalRatings / (products.getRatings().size() + 1);
 
-			products.setProductRating(avgRatings);
-			products.getRatings().add(rating2);
 			rating2.setProducts(products);
-			
+			products.getRatings().add(rating2);
+			products.setProductRating(avgRatings);
+
 			rating2.setUser(userCurrent); // FK
-			userCurrent.getRatings().add(rating);
+			userCurrent.getRatings().add(rating2);
+			rating2 = ratingDao.save(rating2);
+
 		} else {
 			rating2.setModifiedDate(LocalDateTime.now());
 			Integer oldrating = rating2.getRate();
@@ -80,8 +83,8 @@ public class RatingServImpl implements RatingService {
 			Integer totalRatings = products.getProductRating() + rating.getRate() - oldrating;
 			Integer avgRatings = totalRatings / products.getRatings().size();
 			products.setProductRating(avgRatings);
+			rating2 = ratingDao.save(rating2);
 		}
-		rating2 = ratingDao.save(rating2);
 
 		return rating2;
 	}

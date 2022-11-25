@@ -24,7 +24,12 @@ public class PostalCodes {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Integer id;
+	
+//	@Min(value = 6, message = "postalcode should be 6 digit")
+//	@Max(value = 6, message = "postalcode should be 6 digit")
 	private Integer PINCODE;
+	
+	@JsonIgnore
 	private boolean active;
 	
 	@JsonIgnore

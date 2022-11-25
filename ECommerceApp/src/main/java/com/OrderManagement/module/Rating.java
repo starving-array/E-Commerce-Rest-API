@@ -10,12 +10,15 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 
 @Entity
 @Data
@@ -25,10 +28,9 @@ public class Rating {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Integer id;
-	
-	
-	@Min(value = 1, message = "Value should be minimum 1")
-	@Max(value = 5, message = "Value should be maximum 5")
+
+	@Max(value = 5, message = "Max rating value is 5")
+	@Min(value = 1, message = "Min rating value is 1")
 	private Integer rate;
 
 	@JsonIgnore

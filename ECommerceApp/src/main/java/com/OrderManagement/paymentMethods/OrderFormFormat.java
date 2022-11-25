@@ -7,7 +7,8 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class CardFormat {
+public class OrderFormFormat {
+	// card credentials
 	private Long cardNo;
 	private Integer pin;
 }

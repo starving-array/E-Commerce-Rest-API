@@ -1,6 +1,7 @@
 package com.OrderManagement.Admin.service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -11,17 +12,21 @@ import com.OrderManagement.Admin.module.AdminCredential;
 import com.OrderManagement.Admin.module.CardCredential;
 import com.OrderManagement.Admin.repository.AdminDao;
 import com.OrderManagement.Admin.repository.CardCredentialDao;
+import com.OrderManagement.DTO.OrderDto;
 import com.OrderManagement.exceptions.AdminExpectation;
 import com.OrderManagement.exceptions.OtherException;
 import com.OrderManagement.exceptions.UserException;
 import com.OrderManagement.module.Catagory;
 import com.OrderManagement.module.CurrentSession;
 import com.OrderManagement.module.Orders;
+import com.OrderManagement.module.Payment;
 import com.OrderManagement.module.Products;
 import com.OrderManagement.module.User;
 import com.OrderManagement.module.address.PostalCodes;
 import com.OrderManagement.repository.CatagoryDao;
 import com.OrderManagement.repository.OrderDao;
+import com.OrderManagement.repository.PaymentDao;
+import com.OrderManagement.repository.PostalDao;
 import com.OrderManagement.repository.ProductDao;
 import com.OrderManagement.repository.SessionDao;
 import com.OrderManagement.repository.UserDao;
@@ -48,6 +53,12 @@ public class AdminServImpl implements AdminService {
 
 	@Autowired
 	private AdminDao adminDao;
+
+	@Autowired
+	private PostalDao postalDao;
+
+	@Autowired
+	private PaymentDao paymentDao;
 
 	@Override
 	public List<User> getAllUser(String sessionId) throws UserException, AdminExpectation {
@@ -122,7 +133,7 @@ public class AdminServImpl implements AdminService {
 	}
 
 	@Override
-	public List<Orders> viewOrdersPaidByCardNo(String sessionId, Long cardNumber) throws AdminExpectation {
+	public List<OrderDto> viewOrdersPaidByCardNo(String sessionId, Long cardNumber) throws AdminExpectation {
 		// admin valid!
 		CurrentSession cur = sessionDao.findByUuid(sessionId);
 		if (cur == null) {
@@ -140,41 +151,65 @@ public class AdminServImpl implements AdminService {
 		if (orders.size() == 0) {
 			throw new AdminExpectation("No orders found");
 		}
-		return orders;
-	}
 
-	@Override
-	public List<Orders> viwOrderShipToPinCode(String sessionId, Integer pincode) throws AdminExpectation {
-		List<Orders> list = adminDao.viwOrderShipToPinCode(pincode);
-		if(list.isEmpty()) {
-			throw new AdminExpectation("No orders found that sent to this PIN "+pincode);
+		List<OrderDto> listDtoOrder = new ArrayList<>();
+		for (Orders o : orders) {
+			listDtoOrder.add(new OrderDto().getDtoOrder(o));
 		}
-		return list;
+		return listDtoOrder;
 	}
 
 	@Override
-	public List<Orders> viewOrderBuyFromByPinCode(String sessionId, Integer pincode) throws AdminExpectation {
-		// TODO Auto-generated method stub
-		return null;
+	public List<OrderDto> viwOrderShipToPinCode(String sessionId, Integer pincode) throws AdminExpectation {
+		List<Orders> orders = adminDao.viwOrderShipToPinCode(pincode);
+		if (orders.isEmpty()) {
+			throw new AdminExpectation("No orders found that sent to this PIN " + pincode);
+		}
+		List<OrderDto> listDtoOrder = new ArrayList<>();
+		for (Orders o : orders) {
+			listDtoOrder.add(new OrderDto().getDtoOrder(o));
+		}
+		return listDtoOrder;
 	}
 
 	@Override
-	public List<Orders> viewOrdersByCity(String sessionId, String city) throws AdminExpectation {
-		// TODO Auto-generated method stub
-		return null;
+	public List<OrderDto> viewOrdersByCity(String sessionId, String city) throws AdminExpectation {
+		List<Orders> orders = adminDao.viwOrderByCity(city);
+		if (orders.isEmpty()) {
+			throw new AdminExpectation("No orders found that sent to this city " + city);
+		}
+		List<OrderDto> listDtoOrder = new ArrayList<>();
+		for (Orders o : orders) {
+			listDtoOrder.add(new OrderDto().getDtoOrder(o));
+		}
+		return listDtoOrder;
 	}
 
 	@Override
-	public List<Orders> viewOrderByState(String sessionId, String state) throws AdminExpectation {
-		// TODO Auto-generated method stub
-		return null;
+	public List<OrderDto> viewOrderByState(String sessionId, String state) throws AdminExpectation {
+		List<Orders> orders = adminDao.viwOrderByState(state);
+		if (orders.isEmpty()) {
+			throw new AdminExpectation("No orders found that sent to this state " + state);
+		}
+		List<OrderDto> listDtoOrder = new ArrayList<>();
+		for (Orders o : orders) {
+			listDtoOrder.add(new OrderDto().getDtoOrder(o));
+		}
+		return listDtoOrder;
 	}
 
 	@Override
-	public List<Orders> viewOrderByCustomer(String sessionId, Integer customerId)
+	public List<OrderDto> viewOrderByCustomer(String sessionId, Integer customerId)
 			throws AdminExpectation, UserException {
-		// TODO Auto-generated method stub
-		return null;
+		List<Orders> orders = adminDao.viwOrderByUser(customerId);
+		if (orders.isEmpty()) {
+			throw new AdminExpectation(customerId + "User hasn't ordered anything yet");
+		}
+		List<OrderDto> listDtoOrder = new ArrayList<>();
+		for (Orders o : orders) {
+			listDtoOrder.add(new OrderDto().getDtoOrder(o));
+		}
+		return listDtoOrder;
 	}
 
 	@Override
@@ -192,7 +227,7 @@ public class AdminServImpl implements AdminService {
 			throw new AdminExpectation("Access denied");
 		}
 		// access cleared
-		
+
 		Optional<Catagory> cOptional = catagoryDao.findById(catagoryId);
 		if (cOptional.isEmpty()) {
 			throw new OtherException("Invalid catagory id");
@@ -232,21 +267,176 @@ public class AdminServImpl implements AdminService {
 	}
 
 	@Override
-	public List<PostalCodes> addPostalCodes(List<PostalCodes> postalCodes) {
-		// TODO Auto-generated method stub
-		return null;
+	public List<Catagory> getAllCategory() throws OtherException {
+		List<Catagory> catagories = catagoryDao.findAll();
+		if (catagories.size() == 0) {
+			throw new OtherException("No category found");
+		}
+		return catagories;
 	}
 
 	@Override
-	public List<PostalCodes> deactivatePostalCodes(List<PostalCodes> postalCodes) {
-		// TODO Auto-generated method stub
-		return null;
+	public List<PostalCodes> addPostalCodes(String sessionId, List<PostalCodes> postalCodes) throws AdminExpectation {
+		// admin valid!
+		CurrentSession cur = sessionDao.findByUuid(sessionId);
+		if (cur == null) {
+			throw new AdminExpectation("Please log in to post");
+		}
+
+		Integer userid = cur.getUserId();
+		String password = new AdminCredential().getPassword();
+		if (userid != 0) {
+			throw new AdminExpectation("Access denied");
+		}
+		// access cleared
+		List<PostalCodes> listOfCodes = new ArrayList<>();
+		for (PostalCodes p : postalCodes) {
+			PostalCodes postalCode = postalDao.getByCode(p.getPINCODE());
+			if (postalCode != null) {
+				if (!postalCode.isActive()) {
+					postalCode.setActive(true);
+					postalCode = postalDao.save(postalCode);
+					listOfCodes.add(postalCode);
+				}
+				continue;
+			}
+			postalCode = new PostalCodes();
+			postalCode.setActive(true);
+			postalCode.setPINCODE(p.getPINCODE());
+			postalCode = postalDao.save(postalCode);
+			listOfCodes.add(postalCode);
+		}
+		return listOfCodes;
 	}
 
 	@Override
-	public List<PostalCodes> reactivePostalCodes(List<PostalCodes> postalCodes) {
-		// TODO Auto-generated method stub
-		return null;
+	public List<PostalCodes> deactivatePostalCodes(String sessionId, List<PostalCodes> postalCodes)
+			throws AdminExpectation {
+		// admin valid!
+		CurrentSession cur = sessionDao.findByUuid(sessionId);
+		if (cur == null) {
+			throw new AdminExpectation("Please log in to post");
+		}
+
+		Integer userid = cur.getUserId();
+		String password = new AdminCredential().getPassword();
+		if (userid != 0) {
+			throw new AdminExpectation("Access denied");
+		}
+		// access cleared
+		List<PostalCodes> listOfCodes = new ArrayList<>();
+		for (PostalCodes p : postalCodes) {
+			PostalCodes postalCode = postalDao.getByCode(p.getPINCODE());
+			if (postalCode == null) {
+				continue;
+			}
+			postalCode.setActive(false);
+			postalCode = postalDao.save(postalCode);
+			listOfCodes.add(postalCode);
+		}
+		return listOfCodes;
+	}
+
+	@Override
+	public List<PostalCodes> reactivePostalCodes(String sessionId, List<PostalCodes> postalCodes)
+			throws AdminExpectation {
+		// admin valid!
+		CurrentSession cur = sessionDao.findByUuid(sessionId);
+		if (cur == null) {
+			throw new AdminExpectation("Please log in to post");
+		}
+
+		Integer userid = cur.getUserId();
+		String password = new AdminCredential().getPassword();
+		if (userid != 0) {
+			throw new AdminExpectation("Access denied");
+		}
+		// access cleared
+		List<PostalCodes> listOfCodes = new ArrayList<>();
+		for (PostalCodes p : postalCodes) {
+			PostalCodes postalCode = postalDao.getByCode(p.getPINCODE());
+			if (postalCode == null) {
+				continue;
+			}
+			postalCode.setActive(true);
+			postalCode = postalDao.save(postalCode);
+			listOfCodes.add(postalCode);
+		}
+		return listOfCodes;
+	}
+
+	@Override
+	public Payment addPaymentMethod(String sessionId, String methodname) throws AdminExpectation, OtherException {
+		// admin valid!
+		CurrentSession cur = sessionDao.findByUuid(sessionId);
+		if (cur == null) {
+			throw new AdminExpectation("Please log in to post");
+		}
+
+		Integer userid = cur.getUserId();
+		String password = new AdminCredential().getPassword();
+		if (userid != 0) {
+			throw new AdminExpectation("Access denied");
+		}
+		// access cleared
+		Payment payment = paymentDao.findByMethodName(methodname);
+		if (payment == null) {
+			payment = new Payment();
+			payment.setActive(true);
+			payment.setMethodName(methodname);
+			payment = paymentDao.save(payment);
+		}
+
+		return payment;
+	}
+
+	@Override
+	public Payment reactivePaymentMethod(String sessionId, String methodname) throws AdminExpectation, OtherException {
+		// admin valid!
+		CurrentSession cur = sessionDao.findByUuid(sessionId);
+		if (cur == null) {
+			throw new AdminExpectation("Please log in to post");
+		}
+
+		Integer userid = cur.getUserId();
+		String password = new AdminCredential().getPassword();
+		if (userid != 0) {
+			throw new AdminExpectation("Access denied");
+		}
+		// access cleared
+		Payment payment = paymentDao.findByMethodName(methodname);
+		if (payment != null) {
+			payment.setActive(true);
+			payment = paymentDao.save(payment);
+			return payment;
+		} else {
+			throw new OtherException("Method not exists");
+		}
+
+	}
+
+	@Override
+	public Payment deactivePaymentMethod(String sessionId, String methodname) throws AdminExpectation, OtherException {
+		// admin valid!
+		CurrentSession cur = sessionDao.findByUuid(sessionId);
+		if (cur == null) {
+			throw new AdminExpectation("Please log in to post");
+		}
+
+		Integer userid = cur.getUserId();
+		String password = new AdminCredential().getPassword();
+		if (userid != 0) {
+			throw new AdminExpectation("Access denied");
+		}
+		// access cleared
+		Payment payment = paymentDao.findByMethodName(methodname);
+		if (payment != null) {
+			payment.setActive(false);
+			payment = paymentDao.save(payment);
+			return payment;
+		} else {
+			throw new OtherException("Method not exists");
+		}
 	}
 
 }
