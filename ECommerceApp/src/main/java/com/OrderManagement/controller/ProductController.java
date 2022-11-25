@@ -69,6 +69,7 @@ public class ProductController {
 		List<ProductDto> list = productService.getProductByCategorySortByDate(categoryId);
 		return new ResponseEntity<List<ProductDto>>(list, HttpStatus.OK);
 	}
+
 //
 //	// name
 	@CrossOrigin
@@ -86,6 +87,7 @@ public class ProductController {
 		List<ProductDto> list = productService.getProductsByCategorySortByName(categoryId);
 		return new ResponseEntity<List<ProductDto>>(list, HttpStatus.OK);
 	}
+
 //
 //	// price
 	@CrossOrigin
@@ -117,11 +119,12 @@ public class ProductController {
 		List<ProductDto> list = productService.getProductsSortByPriceByCategory(categoryId);
 		return new ResponseEntity<List<ProductDto>>(list, HttpStatus.OK);
 	}
+
 //
 //	// between
 	@CrossOrigin
 	@GetMapping("/sortby/maxprice/{max}/minprice/{min}/price=desc")
-	public ResponseEntity<List<ProductDto>> sortByPriceDesc(@PathVariable("max") Double max,
+	public ResponseEntity<List<ProductDto>> sortByMaxMinPriceDesc(@PathVariable("max") Double max,
 			@PathVariable("min") Double min) throws ProductException, OtherException {
 		List<ProductDto> list = productService.getProductsBetweenPriceSortByPriceDesc(max, min);
 		return new ResponseEntity<List<ProductDto>>(list, HttpStatus.OK);
@@ -129,7 +132,7 @@ public class ProductController {
 
 	@CrossOrigin
 	@GetMapping("/sortby/maxprice/{max}/minprice/{min}/price=asc")
-	public ResponseEntity<List<ProductDto>> sortByPriceAsc(@PathVariable("max") Double max,
+	public ResponseEntity<List<ProductDto>> sortByMaxMinPriceAsc(@PathVariable("max") Double max,
 			@PathVariable("min") Double min) throws ProductException, OtherException {
 		List<ProductDto> list = productService.getProductsBetweenPriceSortByPriceAsc(max, min);
 		return new ResponseEntity<List<ProductDto>>(list, HttpStatus.OK);
@@ -137,7 +140,7 @@ public class ProductController {
 
 	@CrossOrigin
 	@GetMapping("/sortby/{categoryid}/maxprice/{max}/minprice/{min}/price=desc")
-	public ResponseEntity<List<ProductDto>> CategorySortByPriceDesc(@PathVariable("categoryid") Integer categoryId,
+	public ResponseEntity<List<ProductDto>> CategorySortByMaxMinPriceDesc(@PathVariable("categoryid") Integer categoryId,
 			@PathVariable("max") Double max, @PathVariable("min") Double min) throws ProductException, OtherException {
 		List<ProductDto> list = productService.getProductsBetweenPriceSortByPriceByCategoryDesc(categoryId, max, min);
 		return new ResponseEntity<List<ProductDto>>(list, HttpStatus.OK);
@@ -145,11 +148,12 @@ public class ProductController {
 
 	@CrossOrigin
 	@GetMapping("/sortby/{categoryid}/maxprice/{max}/minprice/{min}/price=asc")
-	public ResponseEntity<List<ProductDto>> CategorySortByPriceAsc(@PathVariable("categoryid") Integer categoryId,
+	public ResponseEntity<List<ProductDto>> CategorySortByMaxMinPriceAsc(@PathVariable("categoryid") Integer categoryId,
 			@PathVariable("max") Double max, @PathVariable("min") Double min) throws ProductException, OtherException {
 		List<ProductDto> list = productService.getProductsBetweenPriceSortByPriceByCategory(categoryId, max, min);
 		return new ResponseEntity<List<ProductDto>>(list, HttpStatus.OK);
 	}
+
 //
 //	// min
 //
@@ -184,6 +188,7 @@ public class ProductController {
 		List<ProductDto> list = productService.getProductsMinPriceSortByPriceByCategory(categoryId, min);
 		return new ResponseEntity<List<ProductDto>>(list, HttpStatus.OK);
 	}
+
 //
 //	// max
 	@CrossOrigin
@@ -217,6 +222,7 @@ public class ProductController {
 		List<ProductDto> list = productService.getProductsMaxPriceSortByPriceByCategory(categoryId, max);
 		return new ResponseEntity<List<ProductDto>>(list, HttpStatus.OK);
 	}
+
 //
 //	// feedback
 //
